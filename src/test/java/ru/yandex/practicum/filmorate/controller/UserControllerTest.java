@@ -4,14 +4,13 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import javax.validation.constraints.Email;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 class UserControllerTest {
-    private UserController userController = new UserController();
+    private final UserController userController = new UserController();
 
     @Test
     void findAll() {
@@ -31,12 +30,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUserWithoutOrIncorrectEmail() {
-        User user1 = new User(0, "Maria", null, "masha235",
-                LocalDate.of(2000, 11, 15));
-        assertThrows(ValidationException.class,
-                () -> userController.create(user1));
-
+    void createUserWithBlankOrIncorrectEmail() {
         User user2 = new User(0, "Maria", "mariayandex.ru", "masha235",
                 LocalDate.of(2000, 11, 15));
         assertThrows(ValidationException.class,
@@ -54,11 +48,6 @@ class UserControllerTest {
                 LocalDate.of(2000, 11, 15));
         assertThrows(ValidationException.class,
                 () -> userController.create(user1));
-
-        User user2 = new User(0, "Maria","maria@yandex.ru", "",
-                LocalDate.of(2000, 11, 15));
-        assertThrows(ValidationException.class,
-                () -> userController.create(user2));
     }
 
     @Test
@@ -66,7 +55,6 @@ class UserControllerTest {
         User user = new User(0, null, "maria@yandex.ru", "masha235",
                 LocalDate.of(2000, 11, 15));
         assertEquals("masha235", userController.create(user).getName());
-
     }
 
     @Test

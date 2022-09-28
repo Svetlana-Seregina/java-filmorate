@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @RequiredArgsConstructor
@@ -16,8 +18,11 @@ import javax.validation.constraints.Email;
 public class User {
     private Integer id;
     private String name;
+    @NotBlank
     @Email
     private final String email;
+    @NotBlank
+    @NotNull
     private final String login;
     private final LocalDate birthday;
 
