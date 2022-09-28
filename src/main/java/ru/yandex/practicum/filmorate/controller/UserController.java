@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -29,9 +28,7 @@ public class UserController {
             validationUser(user);
             user.setId(getNextId());
             users.put(user.getId(), user);
-            if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
-                user.setName(user.getLogin());
-            }
+
             log.info("Email пользователя: {}, Логин: {}, Имя пользователя: {}, Дата рождения: {}",
                     user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
             return user;
@@ -53,12 +50,10 @@ public class UserController {
 
 
     private void validationUser (User user) {
-        if (!user.getEmail().contains("@")) {
-            throw new ValidationException("Электронная почта должна содержать символ @");
-        } else if (user.getLogin().contains(" ")) {
+        if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может содержать пробелы");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
+        } else if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
     }
 

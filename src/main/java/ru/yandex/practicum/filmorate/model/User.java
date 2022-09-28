@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 
 @Data
 @RequiredArgsConstructor
@@ -22,8 +23,9 @@ public class User {
     @Email
     private final String email;
     @NotBlank
-    @NotNull
     private final String login;
+    @NotNull
+    @PastOrPresent
     private final LocalDate birthday;
 
 

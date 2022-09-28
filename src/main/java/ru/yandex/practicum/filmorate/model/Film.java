@@ -6,7 +6,6 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 @Data
-
 public class Film {
     private Integer id;
     @NotBlank // пресекает передачу null либо же название только из пробелов

@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 class UserControllerTest {
     private final UserController userController = new UserController();
 
@@ -27,19 +26,6 @@ class UserControllerTest {
                 LocalDate.of(2000, 11, 15));
         userController.create(user);
         assertEquals(user, userController.create(user));
-    }
-
-    @Test
-    void createUserWithBlankOrIncorrectEmail() {
-        User user2 = new User(0, "Maria", "mariayandex.ru", "masha235",
-                LocalDate.of(2000, 11, 15));
-        assertThrows(ValidationException.class,
-                () -> userController.create(user2));
-
-        User user3 = new User("", "masha235",
-                LocalDate.of(2000, 11, 15));
-        assertThrows(ValidationException.class,
-                () -> userController.create(user3));
     }
 
     @Test
@@ -62,14 +48,6 @@ class UserControllerTest {
         User user = new User(0, "","maria@yandex.ru", "masha235",
                 LocalDate.of(2000, 11, 15));
         assertEquals("masha235", userController.create(user).getName());
-    }
-
-    @Test
-    void createUserWithIncorrectBirthday() {
-        User user = new User(0, "Maria","maria@yandex.ru", "masha235",
-                LocalDate.of(2030, 11, 15));
-        assertThrows(ValidationException.class,
-                () -> userController.create(user));
     }
 
 }
