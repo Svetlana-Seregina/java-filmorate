@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.Set;
+import java.util.TreeSet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +19,7 @@ import javax.validation.constraints.PastOrPresent;
 @AllArgsConstructor
 @NoArgsConstructor(force=true)
 public class User {
-    private Integer id;
+    private Long id;
     private String name;
     @NotBlank
     @Email
@@ -27,7 +29,7 @@ public class User {
     @NotNull
     @PastOrPresent
     private final LocalDate birthday;
-
+    private Set<Long> friends = new TreeSet<>(); // Set<Long> c id друзей
 
     public void setName(String name) {
         this.name = name;

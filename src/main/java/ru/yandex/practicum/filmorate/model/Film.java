@@ -1,13 +1,15 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
-import lombok.Data;
+import java.util.Set;
+import java.util.TreeSet;
 
+import lombok.Data;
 import javax.validation.constraints.*;
 
 @Data
-public class Film {
-    private Integer id;
+public class Film{
+    private Long id;
     @NotBlank // пресекает передачу null либо же название только из пробелов
     private final String name;
     @Size(max = 200)
@@ -18,9 +20,10 @@ public class Film {
     @Min(1)
     private final int duration;
 
-    public void setId(Integer id) {
+    private final Set<Long> likes = new TreeSet<>(); // множество IdUsers, условие «один пользователь — один лайк» для оценки фильмов
+
+    public void setId(Long id) {
         this.id = id;
     }
-
 
 }
