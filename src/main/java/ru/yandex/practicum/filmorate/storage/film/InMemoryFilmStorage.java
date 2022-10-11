@@ -2,8 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -22,13 +21,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Collection<Film> findAll() {
+        log.info("Все фильмы: {}", films.values());
         return films.values();
     }
 
     public Film getFilmById(Long id) {
         if (!films.containsKey(id)) {
-            throw new UserNotFoundException("Фильма с id " + id + "не существует");
+            throw new EntityNotFoundException("Фильма с id " + id + "не существует");
         }
+        log.info("Фильм по id: {}", films.get(id));
         return films.get(id);
     }
 
@@ -42,8 +43,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         checkReleaseDateFilm(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
-        log.info("Название фильма: {}, Описание фильма: {}, Дата выхода на экран: {}, Продолжительность фильма: {}",
-                film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration());
+        log.info("id фильма: {}, Название фильма: {}, Описание фильма: {}, Дата выхода на экран: {}, Продолжительность фильма: {}",
+                film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration());
         return film;
     }
 
@@ -53,8 +54,10 @@ public class InMemoryFilmStorage implements FilmStorage {
             checkReleaseDateFilm(film);
             films.put(film.getId(), film);
         } else {
-            throw new FilmNotFoundException("Фильм " + film.getName() + "не найдет");
+            throw new EntityNotFoundException("Фильм " + film.getName() + "не найдет");
         }
+        log.info("id фильма: {}, Название фильма: {}, Описание фильма: {}, Дата выхода на экран: {}, Продолжительность фильма: {}",
+                film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration());
         return film;
     }
 
@@ -69,15 +72,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (films.containsKey(id)) {
             films.remove(id);
         } else {
-            throw new FilmNotFoundException("Фильм с таким id " + id + " отсутствует");
+            throw new EntityNotFoundException("Фильм с таким id " + id + " отсутствует.");
         }
+        log.info("id фильма: {}", films.get(id));
     }
 
     public List<Film> findPopularFilms(Integer count) {
-        return films.values().stream()
+        List<Film> popularFilms = new ArrayList<>(films.values());
+        return popularFilms.stream()
                 .sorted(this::compare)
                 .limit(count)
                 .collect(Collectors.toList());
+
     }
 
     private int compare(Film f0, Film f1) {

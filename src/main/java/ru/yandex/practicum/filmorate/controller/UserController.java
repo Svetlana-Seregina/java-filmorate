@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import javax.validation.Valid;
 import java.util.*;
 
+@RequestMapping("/users")
 @RestController
 public class UserController {
     private final UserService userService;
@@ -18,42 +19,42 @@ public class UserController {
     }
 
 
-    @GetMapping("/users")
+    @GetMapping
     public Collection<User> findAll() { return userService.findAll(); }
-    @GetMapping("/users/{id}")
-    public User findUser(@PathVariable("id") Long id) {
+    @GetMapping("/{id}")
+    public User findUser(@PathVariable Long id) {
         return userService.getUserById(id);
     }
-    @GetMapping("/users/{id}/friends")
-    public List<User> getSetOfFriends(@PathVariable("id") Long id) {
+    @GetMapping("/{id}/friends")
+    public List<User> getSetOfFriends(@PathVariable Long id) {
         return userService.getSetOfFriends(id);
     }
-    @GetMapping("/users/{id}/friends/common/{otherId}")
+    @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getSetOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
         return userService.getSetOfCommonFriends(id, otherId);
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public User create(@Valid @RequestBody User user) {
             return userService.create(user);
     }
 
 
-    @PutMapping("/users")
+    @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         return userService.updateUser(user);
     }
-    @PutMapping("/users/{id}/friends/{friendId}")
+    @PutMapping("/{id}/friends/{friendId}")
     public void addFriendToSetOfFriends(@PathVariable Long id, @PathVariable Long friendId) {
         userService.addFriendToSetOfFriends(id, friendId);
     }
 
 
-    @DeleteMapping("/users/{id}/friends/{friendId}")
+    @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriendFromSetOfFriends(@PathVariable Long id, @PathVariable Long friendId) {
         userService.deleteFriendFromSetOfFriends(id, friendId);
     }
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }

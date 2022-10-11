@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -38,7 +38,7 @@ public class InMemoryUserStorage implements UserStorage {
             validationUser(user);
             users.put(user.getId(), user);
         } else {
-            throw new UserNotFoundException("Пользователь не найден.");
+            throw new EntityNotFoundException("Пользователь не найден.");
         }
         return user;
     }
@@ -48,7 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(id)) {
             users.remove(id);
         } else {
-            throw new UserNotFoundException("Пользователь не найден.");
+            throw new EntityNotFoundException("Пользователь не найден.");
         }
     }
 
@@ -56,13 +56,14 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может содержать пробелы");
         } else if (user.getName() == null || user.getName().isBlank()) {
+
             user.setName(user.getLogin());
         }
     }
     @Override
     public User getUserById(Long id) {
         if (!users.containsKey(id)) {
-            throw new UserNotFoundException("Пользователя с id " + id + "не существует");
+            throw new EntityNotFoundException("Пользователя с id " + id + " не существует");
         }
         return users.get(id);
     }
@@ -71,10 +72,10 @@ public class InMemoryUserStorage implements UserStorage {
     public List<User> getSetOfCommonFriends(Long id, Long otherId) {
         List<User> commonFriends = new ArrayList<>();
         if (!users.containsKey(id)) {
-            throw new UserNotFoundException("Пользователя с id " + id + " не существует");
+            throw new EntityNotFoundException("Пользователя с id " + id + " не существует");
         }
         if (!users.containsKey(otherId)) {
-            throw new UserNotFoundException("Пользователя с id " + otherId + " не существует");
+            throw new EntityNotFoundException("Пользователя с id " + otherId + " не существует");
         }
 
         Set<Long> commonSetOfFriend = users.get(id).getFriends().stream()

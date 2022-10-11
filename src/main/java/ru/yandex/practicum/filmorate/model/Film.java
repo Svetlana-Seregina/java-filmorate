@@ -19,11 +19,6 @@ public class Film{
     // @Positive // запрет на передачу отрицательного значения
     @Min(1)
     private final int duration;
-
     private final Set<Long> likes = new TreeSet<>(); // множество IdUsers, условие «один пользователь — один лайк» для оценки фильмов
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
 }
