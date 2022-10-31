@@ -20,5 +20,7 @@ public class Film{
     @Min(1)
     private final int duration;
     private final Set<Long> likes = new TreeSet<>(); // множество IdUsers, условие «один пользователь — один лайк» для оценки фильмов
+    private final Genre genre;
+    private final Category category;
 
 }

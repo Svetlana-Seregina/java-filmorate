@@ -25,6 +25,7 @@ public class User {
     @PastOrPresent
     private final LocalDate birthday;
     private final Set<Long> friends = new TreeSet<>(); // Set<Long> c id друзей
+    private final FriendStatus friendStatus;
 
 
 }
