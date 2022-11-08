@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import lombok.*;
 
@@ -25,7 +24,14 @@ public class User {
     @PastOrPresent
     private final LocalDate birthday;
     private final Set<Long> friends = new TreeSet<>(); // Set<Long> c id друзей
-    private final FriendStatus friendStatus;
+
+    public User(Long id, String name, String email, String login, LocalDate birthday) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.login = login;
+        this.birthday = birthday;
+    }
 
 
 }

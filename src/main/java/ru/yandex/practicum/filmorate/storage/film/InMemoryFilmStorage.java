@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -16,13 +17,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private long nextId = 1;
     public static final LocalDate MOVIES_BIRTHDAY = LocalDate.of(1895, 12, 28);
+    private final InMemoryUserStorage inMemoryUserStorage;
+
+    public InMemoryFilmStorage(InMemoryUserStorage inMemoryUserStorage) {
+        this.inMemoryUserStorage = inMemoryUserStorage;
+    }
+
     public Long getNextId() {
         return nextId++;
     }
 
-    public Collection<Film> findAll() {
+    public List<Film> findAll() {
         log.info("Все фильмы: {}", films.values());
-        return films.values();
+        return new ArrayList<>(films.values());
     }
 
     public Film getFilmById(Long id) {
@@ -33,13 +40,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
-    public Map<Long, Film> getFilms() {
-        return films;
-    }
-
-
     @Override
-    public Film create(Film film) {
+    public Film createFilm(Film film) {
         checkReleaseDateFilm(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
@@ -68,15 +70,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(Long id) {
+    public boolean deleteFilm(Long id) {
         if (films.containsKey(id)) {
             films.remove(id);
         } else {
             throw new EntityNotFoundException("Фильм с таким id " + id + " отсутствует.");
         }
         log.info("id фильма: {}", films.get(id));
+        return films.size() > 0;
     }
-
+    @Override
     public List<Film> findPopularFilms(Integer count) {
         List<Film> popularFilms = new ArrayList<>(films.values());
         return popularFilms.stream()
@@ -84,6 +87,33 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .limit(count)
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public void addLikeToFilm(Long id, Long userId) {
+        if (!films.containsKey(id)) {
+            throw new EntityNotFoundException("Такого фильма не существует");
+        }
+        if (!films.containsKey(userId)) {
+            throw new EntityNotFoundException("Такого пользователя не существует");
+        }
+        if (films.get(id).getLikes().contains(userId)) {
+            throw new ValidationException("Пользователь уже ставил лайк к этому фильму.");
+        }
+        films.get(id).getLikes().add(userId);
+    }
+
+    @Override
+    public void removeLikeFromFilm(Long id, Long userId) {
+        if(!inMemoryUserStorage.getUsers().containsKey(userId)) {
+            throw new EntityNotFoundException("Такого пользователя не существует");
+        }
+        if(!films.get(id).getLikes().contains(userId)) {
+            throw new ValidationException("Пользователь не ставил лайк к этому фильму.");
+        }
+        if (films.containsKey(id) && inMemoryUserStorage.getUsers().containsKey(userId)) {
+            films.get(id).getLikes().remove(userId);
+        }
     }
 
     private int compare(Film f0, Film f1) {
