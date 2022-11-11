@@ -1,6 +1,4 @@
 package ru.yandex.practicum.filmorate.model;
-// Таблицы соответствуют классам, колонки — полям, строки — объектам
-//Именно таким соответствием представлены базовые правила маппинга.
 
 import lombok.Builder;
 import lombok.Data;

@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.dao.Impl.FilmDbStorage;
-import ru.yandex.practicum.filmorate.dao.Impl.GenreDaoImpl;
-import ru.yandex.practicum.filmorate.dao.Impl.MpaDaoImpl;
-import ru.yandex.practicum.filmorate.dao.Impl.UserDbStorage;
+import ru.yandex.practicum.filmorate.dao.Impl.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -26,10 +23,11 @@ import static org.assertj.core.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
 class FilmorateApplicationTests {
-	private final UserDbStorage userDbStorage;
-	private final FilmDbStorage filmDbStorage;
+	private final UserDaoImpl userDbStorage;
+	private final FilmDaoImpl filmDbStorage;
 	private final GenreDaoImpl genreDaoImpl;
 	private final MpaDaoImpl mpaDaoImpl;
+	private final LikeDaoImpl likeDaoImpl;
 
 	@Test
 	void contextLoads() {
@@ -166,12 +164,11 @@ class FilmorateApplicationTests {
 				.genres(List.of(Genre.builder().id(1L).name("Комедия").build()))
 				.build());
 
-		filmDbStorage.addLikeToFilm(1L, 1L);
-		filmDbStorage.addLikeToFilm(2L, 1L);
-		filmDbStorage.addLikeToFilm(2L, 2L);
+		likeDaoImpl.addLikeToFilm(1L, 1L);
+		likeDaoImpl.addLikeToFilm(2L, 1L);
+		likeDaoImpl.addLikeToFilm(2L, 2L);
 
-
-		assertThat(filmDbStorage.findPopularFilms(1).size())
+		assertThat(likeDaoImpl.findPopularFilms(1).size())
 				.isEqualTo(1);
 
 	}

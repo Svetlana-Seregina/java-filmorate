@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dao.Impl;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
@@ -11,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-@Component
 @Qualifier("friendsDaoImpl")
 @Repository
 public class FriendsDaoImpl implements FriendsDao {
@@ -35,7 +33,7 @@ public class FriendsDaoImpl implements FriendsDao {
         String sqlQuery = "SELECT * from USERS"+
                 " WHERE user_id in (SELECT FRIEND_ID FROM FRIEND WHERE user_id = ?) AND " +
                 " user_id IN (SELECT FRIEND_ID FROM FRIEND WHERE user_id = ?)";
-          List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDbStorage::mapRowToUser, id, otherId);
+          List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, id, otherId);
         return setOfFriends;
     }
 

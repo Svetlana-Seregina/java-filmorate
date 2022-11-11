@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RequestMapping("/genres")
@@ -24,9 +25,6 @@ public class GenreController {
 
     @GetMapping("/{id}")
     public Genre findGenreById(@PathVariable Long id) {
-        if (id <= 0) {
-            throw  new EntityNotFoundException(String.format("Запрашиваемый genre_id = %d меньше или равен нулю ", id));
-        }
         return genreService.findGenreById(id);
     }
 

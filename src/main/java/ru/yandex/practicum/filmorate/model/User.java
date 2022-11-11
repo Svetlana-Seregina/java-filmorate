@@ -5,17 +5,14 @@ import java.util.*;
 
 import lombok.*;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.*;
 
 @Data
 @Builder
 public class User {
     private Long id;
     private String name;
-    @NotBlank
+    @NotNull
     @Email
     private final String email;
     @NotBlank
@@ -23,7 +20,6 @@ public class User {
     @NotNull
     @PastOrPresent
     private final LocalDate birthday;
-    private final Set<Long> friends = new TreeSet<>(); // Set<Long> c id друзей
 
     public User(Long id, String name, String email, String login, LocalDate birthday) {
         this.id = id;
@@ -32,7 +28,6 @@ public class User {
         this.login = login;
         this.birthday = birthday;
     }
-
 
 }
 

@@ -3,14 +3,12 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Friends;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FriendsService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequestMapping("/users")
 @RestController
@@ -53,10 +51,7 @@ public class UserController {
     // GET /users/{id}/friends - возвращаем список пользователей, являющихся его друзьями
     @GetMapping("/{id}/friends")
     public List<User> getSetOfFriends(@PathVariable Long id) {
-        List<Friends> friends = friendsService.getSetOfFriends(id);
-        return friends.stream()
-                .map(friend -> findUserById(friend.getFriendId()))
-                .collect(Collectors.toList());
+        return friendsService.getSetOfFriends(id);
     }
 
     // GET /users/{id}/friends/common/{otherId} - список друзей, общих с другим пользователем

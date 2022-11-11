@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.dao;
 
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 
-public interface UserStorage {
+public interface UserDao {
     // хранения, обновления и поиска объектов
 
     User findUserById(Long id);

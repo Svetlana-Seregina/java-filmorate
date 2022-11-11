@@ -1,28 +1,28 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.Impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dao.UserDao;
 
 import java.util.*;
 
 @Service
 public class UserService {
-    private final UserDbStorage userDbStorage;
-    public UserService(UserDbStorage userDbStorage) {
-        this.userDbStorage = userDbStorage;
+    private final UserDao userStorage;
+    public UserService(UserDao userStorage) {
+        this.userStorage = userStorage;
     }
     public User createUser(User user) {
-        return userDbStorage.createUser(user);
+        return userStorage.createUser(user);
     }
     public User updateUser(User user) {
-        return userDbStorage.updateUser(user);
+        return userStorage.updateUser(user);
     }
     public Collection<User> findAllUsers() {
-        return userDbStorage.findAllUsers();
+        return userStorage.findAllUsers();
     }
     public User findUserById(Long id) {
-        return userDbStorage.findUserById(id);
+        return userStorage.findUserById(id);
     }
 
 }

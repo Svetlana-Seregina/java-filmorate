@@ -2,27 +2,35 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dao.Impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.LikeService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.*;
 
 @RequestMapping("/films")
 @RestController
 @Slf4j
+@Validated
 public class FilmController {
     private final FilmService filmService;
-    private final UserDbStorage userDbStorage;
+    private final UserService userService;
+    private final LikeService likeService;
+
     @Autowired
-    public FilmController(FilmService filmService, UserDbStorage userDbStorage) {
+    public FilmController(FilmService filmService, UserService userService, LikeService likeService) {
         this.filmService = filmService;
-        this.userDbStorage = userDbStorage;
+        this.userService = userService;
+        this.likeService = likeService;
     }
+
+
     @GetMapping("/{id}")
     public Film findFilmById(@PathVariable Long id) {
         return filmService.getFilmById(id);
@@ -41,12 +49,9 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> findTenPopularFilms(@RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
-        if (count <= 0) {
-            throw new ValidationException("Параметр count имеет отрицательное значение или равен 0: " + count);
-        }
-       log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}", filmService.findPopularFilms(count));
-        return filmService.findPopularFilms(count);
+    public List<Film> findTenPopularFilms(@Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
+        log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}", likeService.findPopularFilms(count));
+        return likeService.findPopularFilms(count);
     }
 
     @PutMapping
@@ -56,13 +61,13 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void addLikeToFilm(@PathVariable Long id, @PathVariable Long userId) {
-        filmService.addLikeToFilm(id, userId);
+        likeService.addLikeToFilm(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLikeFromFilm(@PathVariable Long id, @PathVariable Long userId) {
         try {
-            userDbStorage.findUserById(userId);
+            userService.findUserById(userId);
         } catch (EntityNotFoundException e) {
             throw new EntityNotFoundException("Такого пользователя не существует");
         }
@@ -71,7 +76,7 @@ public class FilmController {
         } catch (EntityNotFoundException e) {
             throw new EntityNotFoundException("Такого фильма не существует");
         }
-        filmService.removeLikeFromFilm(id, userId);
+        likeService.removeLikeFromFilm(id, userId);
     }
 
     @DeleteMapping("/{id}")

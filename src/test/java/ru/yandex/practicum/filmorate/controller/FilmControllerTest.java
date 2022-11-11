@@ -1,21 +1,18 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import org.springframework.jdbc.core.JdbcTemplate;
+import ru.yandex.practicum.filmorate.dao.Impl.FilmDaoImpl;
+import ru.yandex.practicum.filmorate.dao.Impl.GenreDaoImpl;
+import ru.yandex.practicum.filmorate.dao.Impl.LikeDaoImpl;
+import ru.yandex.practicum.filmorate.dao.Impl.UserDaoImpl;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.service.LikeService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
+public class FilmControllerTest {
 
-import static org.junit.jupiter.api.Assertions.*;
-class FilmControllerTest {
-
-    /*private final FilmController filmController = new FilmController(
-            new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()));*/
+    //private final FilmController filmController;
 
     /*@Test
     void createAndDeleteFilm() {
@@ -24,8 +21,8 @@ class FilmControllerTest {
         filmController.saveFilm(film);
         assertEquals(105, film.getDuration());
         filmController.deleteFilm(1L);
-        assertEquals(0, filmController.findAll().size());
-    }*/
+        assertEquals(0, filmController.findAll().size());*/
+    }
 
    /*@Test
     void findAll() {
@@ -86,4 +83,4 @@ class FilmControllerTest {
         assertThrows(EntityNotFoundException.class, () -> filmController.addLikeToFilm(1L, user.getId()));
     }*/
 
-}
+//}
