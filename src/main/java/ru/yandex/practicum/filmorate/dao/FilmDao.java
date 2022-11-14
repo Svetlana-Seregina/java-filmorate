@@ -5,11 +5,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 public interface FilmDao {
-    // добавления, удаления и модификации объектов
-    Film getFilmById(Long id);
+
+    Film getFilmById(Long filmId);
     Film createFilm(Film film);
-    boolean deleteFilm(Long id);
-    Film updateFilm(Film film);
+    boolean deleteFilm(Long filmId);
+    void updateFilm(Film film);
     List<Film> findAll();
 
 }

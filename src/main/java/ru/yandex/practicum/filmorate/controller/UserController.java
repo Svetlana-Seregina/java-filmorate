@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -12,15 +12,10 @@ import java.util.*;
 
 @RequestMapping("/users")
 @RestController
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final FriendsService friendsService;
-
-    @Autowired
-    public UserController(UserService userService, FriendsService friendsService) {
-        this.userService = userService;
-        this.friendsService = friendsService;
-    }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
@@ -32,44 +27,46 @@ public class UserController {
         validationUser(user);
         return userService.updateUser(user);
     }
-    private void validationUser (User user) {
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может содержать пробелы");
-        } else if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-    }
 
-    @GetMapping("/{id}")
-    public User findUserById(@PathVariable Long id){
-        return userService.findUserById(id);
+    @GetMapping("/{userId}")
+    public User findUserById(@PathVariable Long userId){
+        return userService.findUserById(userId);
     }
 
     @GetMapping
     public Collection<User> findAllUsers() { return userService.findAllUsers(); }
 
     // GET /users/{id}/friends - возвращаем список пользователей, являющихся его друзьями
-    @GetMapping("/{id}/friends")
-    public List<User> getSetOfFriends(@PathVariable Long id) {
-        return friendsService.getSetOfFriends(id);
+    @GetMapping("/{userId}/friends")
+    public List<User> getSetOfFriends(@PathVariable Long userId) {
+        return friendsService.getSetOfFriends(userId);
     }
 
+
     // GET /users/{id}/friends/common/{otherId} - список друзей, общих с другим пользователем
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getSetOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return friendsService.getSetOfCommonFriends(id, otherId);
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    public List<User> getSetOfCommonFriends(@PathVariable Long userId, @PathVariable Long otherId) {
+        return friendsService.getSetOfCommonFriends(userId, otherId);
     }
 
     // PUT /users/{id}/friends/{friendId} - добавление в друзья
-    @PutMapping("/{id}/friends/{friendId}")
-    public void addFriendToSetOfFriends(@PathVariable Long id, @PathVariable Long friendId) {
-        friendsService.addFriendToSetOfFriends(id, friendId);
+    @PutMapping("/{userId}/friends/{friendId}")
+    public void addFriendToSetOfFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendsService.addFriendToSetOfFriends(userId, friendId);
     }
 
     // DELETE /users/{id}/friends/{friendId} - удаление из друзей
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriendFromSetOfFriends(@PathVariable Long id, @PathVariable Long friendId) {
-        friendsService.deleteFriendFromSetOfFriends(id, friendId);
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public void deleteFriendFromSetOfFriends(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendsService.deleteFriendFromSetOfFriends(userId, friendId);
+    }
+
+    private void validationUser (User user) {
+        if (user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин не может содержать пробелы");
+        } else if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 
 }

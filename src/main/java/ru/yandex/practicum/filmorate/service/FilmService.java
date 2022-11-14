@@ -3,35 +3,47 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 
 import java.util.List;
+import java.util.Objects;
 
-@Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class FilmService {
-    private final FilmDao filmStorage;
+    private final FilmDao filmDao;
+    private final GenreDao genreDao;
+
 
     public List<Film> findAll(){
-        return filmStorage.findAll();
+        List<Film> allFilms = filmDao.findAll();
+        for (Film film : allFilms) {
+            genreDao.addGenresToFilm(film);
+        }
+        return allFilms;
     }
 
-    public Film getFilmById(Long id) {
-        return filmStorage.getFilmById(id);
+    public Film getFilmById(Long filmId) {
+        Film film = filmDao.getFilmById(filmId);
+        genreDao.addGenresToFilm(Objects.requireNonNull(film));
+        return film;
     }
 
     public Film createFilm(Film film) {
-        return filmStorage.createFilm(film);
+        filmDao.createFilm(film);
+        return genreDao.updateFilmGenres(film);
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.updateFilm(film);
+        filmDao.updateFilm(film);
+        return genreDao.updateFilmGenres(film);
     }
 
-    public boolean deleteFilm(Long id) {
-        return filmStorage.deleteFilm(id);
+    public boolean deleteFilm(Long filmId) {
+        return filmDao.deleteFilm(filmId);
     }
 
 }

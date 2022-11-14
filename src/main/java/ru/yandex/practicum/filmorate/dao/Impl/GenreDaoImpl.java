@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -29,12 +30,45 @@ public class GenreDaoImpl implements GenreDao {
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException("genre_id не может быть меньше нуля = " + id);
         }
-
     }
 
     @Override
     public List<Genre> findAllGenre() {
         return jdbcTemplate.query("SELECT * FROM GENRES", GenreDaoImpl::genreRowToGenre);
+    }
+
+    @Override
+    public void addGenresToFilm(Film film) {
+        String sqlSelectFilmGenres = "SELECT g.genre_id, g.name " +
+                "FROM film_genre " +
+                "INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id " +
+                "WHERE film_id = ?";
+        List<Genre> genres = jdbcTemplate.query(sqlSelectFilmGenres,
+                GenreDaoImpl::genreRowToGenre, film.getId());
+        film.setGenres(genres);
+    }
+
+    @Override
+    public Film updateFilmGenres(Film film) {
+        List<Genre> filmGenres = film.getGenres();
+        if (filmGenres == null) {
+            return film;
+        }
+        filmGenres = filmGenres.stream().distinct().collect(Collectors.toList());
+        Long filmId = film.getId();
+        deleteFilmGenres(film);
+        for (Genre genre : filmGenres) {
+            String sql = "MERGE INTO FILM_GENRE KEY (FILM_ID, GENRE_ID) values (?, ?)";
+            jdbcTemplate.update(sql, filmId, genre.getId());
+        }
+        film.setGenres(filmGenres);
+        return film;
+    }
+
+    @Override
+    public void deleteFilmGenres(Film film) {
+        String sqlQuery = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
+        jdbcTemplate.update(sqlQuery, film.getId());
     }
 
     public static Genre genreRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
@@ -43,27 +77,6 @@ public class GenreDaoImpl implements GenreDao {
                 .name(resultSet.getString("name"))
                 .build();
     }
-    @Override
-    public void addGenresToFilm(Film film) {
-        String sqlSelectFilmGenres = "SELECT g.genre_id, g.name FROM film_genre" +
-                " INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id " +
-                " WHERE film_id = ?";
-        List<Genre> genres = jdbcTemplate.query(sqlSelectFilmGenres,
-                GenreDaoImpl::genreRowToGenre, film.getId());
-        film.setGenres(genres);
-    }
-    @Override
-    public void updateFilmGenres(Film film) {
-        List<Genre> filmGenres = film.getGenres();
-        Long filmId = film.getId();
-        if (filmGenres != null) {
-            String sqlQuery = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
-            jdbcTemplate.update(sqlQuery, filmId);
-            for (Genre genre : filmGenres) {
-                String sql = "MERGE INTO FILM_GENRE KEY (FILM_ID, GENRE_ID) values (?, ?)";
-                jdbcTemplate.update(sql, filmId, genre.getId());
-            }
-        }
-    }
+
 
 }

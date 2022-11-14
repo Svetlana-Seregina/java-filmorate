@@ -1,16 +1,13 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.model.Friends;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-@Qualifier("friendsDaoImpl")
 @Repository
 public class FriendsDaoImpl implements FriendsDao {
 
@@ -21,35 +18,34 @@ public class FriendsDaoImpl implements FriendsDao {
     }
 
     @Override
-    public List<Friends> getSetOfFriends(Long id) {
-        String sqlQuery = "SELECT FRIEND_ID FROM FRIEND WHERE USER_ID = ?";
-        return jdbcTemplate.query(sqlQuery,
-                (rs, rowNum) -> new Friends(id, rs.getLong("friend_id")),
-                id);
+    public List<User> getSetOfFriends(Long userId) {
+       String sqlQuery = "SELECT * FROM USERS u, FRIEND f where u.USER_ID = f.FRIEND_ID AND f.USER_ID = ?";
+        List<User> listOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId);
+        return listOfFriends;
     }
 
     @Override
-    public List<User> getSetOfCommonFriends(Long id, Long otherId) {
-        String sqlQuery = "SELECT * from USERS"+
-                " WHERE user_id in (SELECT FRIEND_ID FROM FRIEND WHERE user_id = ?) AND " +
-                " user_id IN (SELECT FRIEND_ID FROM FRIEND WHERE user_id = ?)";
-          List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, id, otherId);
+    public List<User> getSetOfCommonFriends(Long userId, Long otherId) {
+        String sqlQuery = "SELECT * FROM USERS u, FRIEND f, FRIEND o " +
+                "where u.USER_ID = f.FRIEND_ID AND u.USER_ID = o.FRIEND_ID AND f.USER_ID = ? AND o.USER_ID = ?";
+
+          List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId, otherId);
         return setOfFriends;
     }
 
     @Override
     public void addFriendToSetOfFriends(Long userId, Long friendId) {
-        String sqlQuery = String.format("INSERT into FRIEND(USER_ID, FRIEND_ID) values (%d, %d)", userId, friendId);
+        String sqlQuery = "INSERT into FRIEND (USER_ID, FRIEND_ID) values (?,?)";
         if (friendId <= 0) {
             throw new EntityNotFoundException("friend_id не может быть меньше нуля" + friendId);
         }
-        jdbcTemplate.execute(sqlQuery);
+        jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
     @Override
-    public void deleteFriendFromSetOfFriends(Long id, Long friendId){
-        String sqlQuery = String.format("DELETE from FRIEND where USER_ID = %d AND FRIEND_ID = %d", id, friendId);
-        jdbcTemplate.execute(sqlQuery);
-
+    public void deleteFriendFromSetOfFriends(Long userId, Long friendId){
+        String sqlQuery = "delete from FRIEND where USER_ID = ? and FRIEND_ID = ?";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
     }
+
 }

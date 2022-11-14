@@ -10,5 +10,7 @@ public interface GenreDao {
     Genre findGenreById(Long id);
     List<Genre> findAllGenre();
     void addGenresToFilm(Film film);
-    void updateFilmGenres(Film film);
+    Film updateFilmGenres(Film film);
+    void deleteFilmGenres(Film film);
+
 }

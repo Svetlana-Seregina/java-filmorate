@@ -1,15 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.dao.Impl.FilmDaoImpl;
-import ru.yandex.practicum.filmorate.dao.Impl.GenreDaoImpl;
-import ru.yandex.practicum.filmorate.dao.Impl.LikeDaoImpl;
-import ru.yandex.practicum.filmorate.dao.Impl.UserDaoImpl;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.LikeService;
-import ru.yandex.practicum.filmorate.service.UserService;
-
 public class FilmControllerTest {
 
     //private final FilmController filmController;

@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+
 @RequiredArgsConstructor
 @Component
 public class LikeDaoImpl implements LikeDao {
@@ -20,19 +21,17 @@ public class LikeDaoImpl implements LikeDao {
     }
 
     @Override
-    public void removeLikeFromFilm(Long id, Long userId) {
-        String sql = String.format("delete from LIKES where FILM_ID = %d and USER_ID = %d", id, userId);
-        jdbcTemplate.update(sql);
+    public void removeLikeFromFilm(Long filmId, Long userId) {
+        String sqlQuery = "delete from LIKES where FILM_ID = ? and USER_ID = ?";
+        jdbcTemplate.update(sqlQuery, filmId, userId);
     }
 
     @Override
     public List<Film> findPopularFilms(Integer count) {
-        String sqlQuery = "SELECT *, mpa.NAME AS mpa_name FROM FILMS AS f " +
-                "LEFT JOIN " +
-                "    (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count " +
-                "     FROM LIKES " +
-                "     GROUP BY FILM_ID " +
-                "     ) AS likes_by_film ON likes_by_film.FILM_ID = f.FILM_ID " +
+        String sqlQuery = "SELECT *, mpa.NAME AS mpa_name " +
+                " FROM FILMS AS f LEFT JOIN " +
+                " (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count " +
+                "  FROM LIKES  GROUP BY FILM_ID) AS likes_by_film ON likes_by_film.FILM_ID = f.FILM_ID " +
                 " INNER JOIN mpa ON mpa.MPA_ID = f.MPA_ID " +
                 " ORDER BY likes_by_film.likes_count DESC " +
                 " LIMIT " + count;
