@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.dao.FilmDao;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @Slf4j

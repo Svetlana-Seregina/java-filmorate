@@ -98,10 +98,12 @@ public class GenreDaoImpl implements GenreDao {
         filmGenres = filmGenres.stream().distinct().collect(Collectors.toList());
         Long filmId = film.getId();
         deleteFilmGenres(film);
-        for (Genre genre : filmGenres) {
-            String sql = "MERGE INTO FILM_GENRE KEY (FILM_ID, GENRE_ID) values (?, ?)";
-            jdbcTemplate.update(sql, filmId, genre.getId());
-        }
+
+        List<Object[]> args = filmGenres.stream()
+                .map(genre ->  new Object[]{filmId, genre.getId()})
+                .collect(Collectors.toList());
+        jdbcTemplate.batchUpdate("INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) values (?, ?)", args);
+
         film.setGenres(filmGenres);
         return film;
     }

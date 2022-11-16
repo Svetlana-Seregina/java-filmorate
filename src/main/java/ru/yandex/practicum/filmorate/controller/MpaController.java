@@ -20,7 +20,6 @@ public class MpaController {
     public Mpa findMpaById(@PathVariable Long id) {
         log.info("Получен запрос на получение mpa_id = {}", id);
         return mpaService.findMpaById(id);
-
     }
 
     @GetMapping

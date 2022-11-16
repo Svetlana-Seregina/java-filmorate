@@ -32,7 +32,6 @@ public class FilmService {
 
     public Film getFilmById(Long filmId) {
         Film film = filmDao.getFilmById(filmId);
-        //genreDao.addGenresToFilm(Objects.requireNonNull(film));
         genreDao.addGenresToFilm(film);
         return film;
     }
