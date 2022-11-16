@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.LikeDao;
@@ -10,20 +11,21 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class LikeDaoImpl implements LikeDao {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addLikeToFilm(Long id, Long userId) {
+    public boolean addLikeToFilm(Long id, Long userId) {
         String sqlQuery = "INSERT INTO LIKES (USER_ID, FILM_ID) values (?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, id);
+        return jdbcTemplate.update(sqlQuery, userId, id) > 0;
     }
 
     @Override
-    public void removeLikeFromFilm(Long filmId, Long userId) {
-        String sqlQuery = "delete from LIKES where FILM_ID = ? and USER_ID = ?";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
+    public boolean removeLikeFromFilm(Long filmId, Long userId) {
+        String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
+        return jdbcTemplate.update(sqlQuery, filmId, userId) > 0;
     }
 
     @Override

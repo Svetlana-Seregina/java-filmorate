@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.dao.FilmDao;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -92,6 +93,7 @@ public class FilmDaoImpl implements FilmDao {
         String sqlQuery = "SELECT film_id, films.name, description, release_date, duration, rate, films.mpa_id, mpa.NAME AS mpa_name" +
                 " FROM films" +
                 " INNER JOIN mpa ON mpa.MPA_ID = films.MPA_ID";
+
         return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
     }
 

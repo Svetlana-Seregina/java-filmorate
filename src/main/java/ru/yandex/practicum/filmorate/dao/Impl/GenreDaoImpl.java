@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -46,6 +46,22 @@ public class GenreDaoImpl implements GenreDao {
         List<Genre> genres = jdbcTemplate.query(sqlSelectFilmGenres,
                 GenreDaoImpl::genreRowToGenre, film.getId());
         film.setGenres(genres);
+    }
+
+    @Override
+    public Map<Long, List<Genre>> getGenresByFilm() {
+        Map<Long, List<Genre>> result = new HashMap<>();
+
+        jdbcTemplate.query("SELECT film_id, g.genre_id, g.name FROM FILM_GENRE " +
+                        "INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id",
+                (rs, rowNum) -> {
+                    long filmId = rs.getLong("film_id");
+                    List<Genre> list = result.computeIfAbsent(filmId, id -> new ArrayList<>());
+                    list.add(GenreDaoImpl.genreRowToGenre(rs, rowNum));
+                    return null;
+                });
+
+        return result;
     }
 
     @Override

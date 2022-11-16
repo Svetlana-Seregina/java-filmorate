@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
@@ -34,18 +35,19 @@ public class FriendsDaoImpl implements FriendsDao {
     }
 
     @Override
-    public void addFriendToSetOfFriends(Long userId, Long friendId) {
-        String sqlQuery = "INSERT into FRIEND (USER_ID, FRIEND_ID) values (?,?)";
-        if (friendId <= 0) {
-            throw new EntityNotFoundException("friend_id не может быть меньше нуля" + friendId);
+    public boolean addFriendToSetOfFriends(Long userId, Long friendId) {
+        try {
+            String sqlQuery = "INSERT into FRIEND (USER_ID, FRIEND_ID) values (?,?)";
+            return jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
+        } catch (DataIntegrityViolationException e) {
+            throw new EntityNotFoundException("id пользователя не найдено в базе.");
         }
-        jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
     @Override
-    public void deleteFriendFromSetOfFriends(Long userId, Long friendId){
+    public boolean deleteFriendFromSetOfFriends(Long userId, Long friendId){
         String sqlQuery = "delete from FRIEND where USER_ID = ? and FRIEND_ID = ?";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
+        return jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
     }
 
 }

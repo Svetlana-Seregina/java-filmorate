@@ -8,7 +8,7 @@ public interface FriendsDao {
 
     List<User> getSetOfFriends(Long userId);
     List<User> getSetOfCommonFriends(Long userId, Long otherId);
-    void addFriendToSetOfFriends(Long userId, Long friendId);
-    void deleteFriendFromSetOfFriends(Long userId, Long friendId);
+    boolean addFriendToSetOfFriends(Long userId, Long friendId);
+    boolean deleteFriendFromSetOfFriends(Long userId, Long friendId);
 
 }

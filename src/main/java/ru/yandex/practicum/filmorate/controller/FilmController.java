@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -42,7 +41,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> findTenPopularFilms(@Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
+    public List<Film> findPopularsFilms(@Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
         log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}", likeService.findPopularFilms(count));
         return likeService.findPopularFilms(count);
     }
@@ -53,13 +52,12 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public void addLikeToFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        likeService.addLikeToFilm(filmId, userId);
+    public boolean addLikeToFilm(@PathVariable Long filmId, @PathVariable Long userId) {
+        return likeService.addLikeToFilm(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteLikeFromFilm(@PathVariable Long filmId, @PathVariable Long userId) {
-        findFilmById(filmId);
         likeService.removeLikeFromFilm(filmId, userId);
     }
 

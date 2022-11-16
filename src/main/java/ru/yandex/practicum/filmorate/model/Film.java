@@ -11,6 +11,7 @@ import javax.validation.constraints.*;
 @Data
 @Builder
 public class Film{
+
     private Long id;
     @NotBlank // пресекает передачу null либо же название только из пробелов
     private final String name;
