@@ -63,6 +63,31 @@ public class GenreDaoImpl implements GenreDao {
 
         return result;
     }
+    @Override
+    public Map<Long, List<Genre>> getGenresByFilm(List<Film> films) {
+
+        if (films.size() == 0) {
+            return Collections.emptyMap();
+        }
+
+        Map<Long, List<Genre>> result = new HashMap<>();
+
+        List<String> filmIds = films.stream()
+                .map(f -> f.getId().toString())
+                .collect(Collectors.toList());
+
+        jdbcTemplate.query("SELECT film_id, g.genre_id, g.name FROM FILM_GENRE " +
+                        "INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id " +
+                        "WHERE film_id IN ("+ String.join(",", filmIds) +")",
+                (rs, rowNum) -> {
+                    long filmId = rs.getLong("film_id");
+                    List<Genre> list = result.computeIfAbsent(filmId, id -> new ArrayList<>());
+                    list.add(GenreDaoImpl.genreRowToGenre(rs, rowNum));
+                    return null;
+                });
+
+        return result;
+    }
 
     @Override
     public Film updateFilmGenres(Film film) {
