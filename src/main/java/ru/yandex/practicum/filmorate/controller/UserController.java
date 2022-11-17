@@ -28,37 +28,37 @@ public class UserController {
         return userService.updateUser(user);
     }
 
-    @GetMapping("/{userId}")
-    public User findUserById(@PathVariable Long userId){
-        return userService.findUserById(userId);
+    @GetMapping("/{id}")
+    public User findUserById(@PathVariable Long id){
+        return userService.findUserById(id);
     }
 
     @GetMapping
     public Collection<User> findAllUsers() { return userService.findAllUsers(); }
 
     // GET /users/{id}/friends - возвращаем список пользователей, являющихся его друзьями
-    @GetMapping("/{userId}/friends")
-    public List<User> getSetOfFriends(@PathVariable Long userId) {
-        return friendsService.getSetOfFriends(userId);
+    @GetMapping("/{id}/friends")
+    public List<User> getSetOfFriends(@PathVariable Long id) {
+        return friendsService.getSetOfFriends(id);
     }
 
 
     // GET /users/{id}/friends/common/{otherId} - список друзей, общих с другим пользователем
-    @GetMapping("/{userId}/friends/common/{otherId}")
-    public List<User> getSetOfCommonFriends(@PathVariable Long userId, @PathVariable Long otherId) {
-        return friendsService.getSetOfCommonFriends(userId, otherId);
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getSetOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return friendsService.getSetOfCommonFriends(id, otherId);
     }
 
     // PUT /users/{id}/friends/{friendId} - добавление в друзья
-    @PutMapping("/{userId}/friends/{friendId}")
-    public void addFriendToSetOfFriends(@PathVariable Long userId, @PathVariable Long friendId) {
-        friendsService.addFriendToSetOfFriends(userId, friendId);
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriendToSetOfFriends(@PathVariable Long id, @PathVariable Long friendId) {
+        friendsService.addFriendToSetOfFriends(id, friendId);
     }
 
     // DELETE /users/{id}/friends/{friendId} - удаление из друзей
-    @DeleteMapping("/{userId}/friends/{friendId}")
-    public void deleteFriendFromSetOfFriends(@PathVariable Long userId, @PathVariable Long friendId) {
-        friendsService.deleteFriendFromSetOfFriends(userId, friendId);
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriendFromSetOfFriends(@PathVariable Long id, @PathVariable Long friendId) {
+        friendsService.deleteFriendFromSetOfFriends(id, friendId);
     }
 
     private void validationUser (User user) {

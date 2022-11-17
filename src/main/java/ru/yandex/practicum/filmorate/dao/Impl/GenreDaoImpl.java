@@ -48,29 +48,13 @@ public class GenreDaoImpl implements GenreDao {
         film.setGenres(genres);
     }
 
-    @Override
-    public Map<Long, List<Genre>> getGenresByFilm() {
-        Map<Long, List<Genre>> result = new HashMap<>();
-
-        jdbcTemplate.query("SELECT film_id, g.genre_id, g.name FROM FILM_GENRE " +
-                        "INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id",
-                (rs, rowNum) -> {
-                    long filmId = rs.getLong("film_id");
-                    List<Genre> list = result.computeIfAbsent(filmId, id -> new ArrayList<>());
-                    list.add(GenreDaoImpl.genreRowToGenre(rs, rowNum));
-                    return null;
-                });
-
-        return result;
-    }
-    @Override
-    public Map<Long, List<Genre>> getGenresByFilm(List<Film> films) {
+    public void loadFilmsGenres(List<Film> films) {
 
         if (films.size() == 0) {
-            return Collections.emptyMap();
+            return;
         }
 
-        Map<Long, List<Genre>> result = new HashMap<>();
+        Map<Long, List<Genre>> genresByFilmId = new HashMap<>();
 
         List<String> filmIds = films.stream()
                 .map(f -> f.getId().toString())
@@ -78,15 +62,18 @@ public class GenreDaoImpl implements GenreDao {
 
         jdbcTemplate.query("SELECT film_id, g.genre_id, g.name FROM FILM_GENRE " +
                         "INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id " +
-                        "WHERE film_id IN ("+ String.join(",", filmIds) +")",
+                        "WHERE film_id IN (" + String.join(",", filmIds) + ")",
                 (rs, rowNum) -> {
                     long filmId = rs.getLong("film_id");
-                    List<Genre> list = result.computeIfAbsent(filmId, id -> new ArrayList<>());
+                    List<Genre> list = genresByFilmId.computeIfAbsent(filmId, id -> new ArrayList<>());
                     list.add(GenreDaoImpl.genreRowToGenre(rs, rowNum));
                     return null;
                 });
 
-        return result;
+        for (Film film : films) {
+            List<Genre> genres = genresByFilmId.getOrDefault(film.getId(), new ArrayList<>());
+            film.setGenres(genres);
+        }
     }
 
     @Override
@@ -100,7 +87,7 @@ public class GenreDaoImpl implements GenreDao {
         deleteFilmGenres(film);
 
         List<Object[]> args = filmGenres.stream()
-                .map(genre ->  new Object[]{filmId, genre.getId()})
+                .map(genre -> new Object[]{filmId, genre.getId()})
                 .collect(Collectors.toList());
         jdbcTemplate.batchUpdate("INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) values (?, ?)", args);
 

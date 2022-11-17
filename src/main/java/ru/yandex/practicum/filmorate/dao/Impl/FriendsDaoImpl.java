@@ -20,7 +20,7 @@ public class FriendsDaoImpl implements FriendsDao {
 
     @Override
     public List<User> getSetOfFriends(Long userId) {
-       String sqlQuery = "SELECT * FROM USERS u, FRIEND f where u.USER_ID = f.FRIEND_ID AND f.USER_ID = ?";
+        String sqlQuery = "SELECT * FROM USERS u, FRIEND f where u.USER_ID = f.FRIEND_ID AND f.USER_ID = ?";
         List<User> listOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId);
         return listOfFriends;
     }
@@ -30,7 +30,7 @@ public class FriendsDaoImpl implements FriendsDao {
         String sqlQuery = "SELECT * FROM USERS u, FRIEND f, FRIEND o " +
                 "where u.USER_ID = f.FRIEND_ID AND u.USER_ID = o.FRIEND_ID AND f.USER_ID = ? AND o.USER_ID = ?";
 
-          List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId, otherId);
+        List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId, otherId);
         return setOfFriends;
     }
 
@@ -45,7 +45,7 @@ public class FriendsDaoImpl implements FriendsDao {
     }
 
     @Override
-    public boolean deleteFriendFromSetOfFriends(Long userId, Long friendId){
+    public boolean deleteFriendFromSetOfFriends(Long userId, Long friendId) {
         String sqlQuery = "delete from FRIEND where USER_ID = ? and FRIEND_ID = ?";
         return jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
     }

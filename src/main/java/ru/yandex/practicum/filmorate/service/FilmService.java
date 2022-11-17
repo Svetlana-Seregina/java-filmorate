@@ -6,11 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
-import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,11 +19,7 @@ public class FilmService {
 
     public List<Film> findAll(){
         List<Film> allFilms = filmDao.findAll();
-        Map<Long, List<Genre>> filmGenres = genreDao.getGenresByFilm();
-        for (Film film : allFilms) {
-            List<Genre> genres = filmGenres.getOrDefault(film.getId(), new ArrayList<>());
-            film.setGenres(genres);
-        }
+        genreDao.loadFilmsGenres(allFilms);
         return allFilms;
     }
 
