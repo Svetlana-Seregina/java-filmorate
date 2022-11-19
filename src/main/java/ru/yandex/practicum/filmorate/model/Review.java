@@ -11,5 +11,4 @@ public class Review {
     private Long userId;
     private Long filmId;
     private boolean isPositive;
-    private long rating;
 }
