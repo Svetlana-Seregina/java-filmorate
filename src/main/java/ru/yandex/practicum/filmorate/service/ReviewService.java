@@ -34,4 +34,8 @@ public class ReviewService {
     public List<Review> getAllReviews() {
         return reviewDao.getAllReviews();
     }
+
+    public List<Review> getReviewByFilmId(long filmId, Optional<Integer> count) {
+        return reviewDao.getReviewByFilmId(filmId, count);
+    }
 }

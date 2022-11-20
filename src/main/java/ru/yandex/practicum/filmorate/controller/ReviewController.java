@@ -43,13 +43,12 @@ public class ReviewController {
         return reviewService.getReviewById(reviewId);
     }
 
- /*   @GetMapping()
-    public Review getReviewByFilmId(@Valid @RequestParam long filmId, @RequestParam Optional<Integer> count) {
-        return reviewService.getReviewById(filmId, count);
-    }*/
-
     @GetMapping()
-    public List<Review> getAllReviews() {
-        return reviewService.getAllReviews();
+    public List<Review> getReviewByFilmId(@RequestParam Optional<Long> filmId, @RequestParam Optional<Integer> count) {
+        if (filmId.isPresent()) {
+            return reviewService.getReviewByFilmId(filmId.get(), count);
+        } else {
+            return reviewService.getAllReviews();
+        }
     }
 }

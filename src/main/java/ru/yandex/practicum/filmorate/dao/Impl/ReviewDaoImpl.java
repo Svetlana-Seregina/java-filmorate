@@ -87,15 +87,33 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public Review getReviewById(long reviewId) {
         String sqlFilmRow = "SELECT * FROM reviews WHERE review_id = ?";
-        Review review;
-
         try {
-            review = jdbcTemplate.queryForObject(sqlFilmRow, this::mapRowToReview, reviewId);
+            return jdbcTemplate.queryForObject(sqlFilmRow, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Отзыв с review_id=%d не найден", reviewId));
         }
-        return review;
     }
+
+    @Override
+    public List<Review> getReviewByFilmId(long filmId, Optional<Integer> count) {
+        String sqlFilmRow;
+
+        if (count.isPresent()) {
+            sqlFilmRow = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
+        } else {
+            sqlFilmRow = "SELECT * FROM reviews WHERE film_id = ?";
+        }
+        try {
+            if (count.isPresent()) {
+                return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId, count.get());
+            } else {
+                return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId);
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntityNotFoundException(String.format("Отзыв для фильма filmd_id=%d не найден", filmId));
+        }
+    }
+
 
     private Review mapRowToReview(ResultSet resultSet, int rowNum) throws SQLException {
         return Review.builder()

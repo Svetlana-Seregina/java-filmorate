@@ -14,8 +14,10 @@ public class Review {
     @NotNull
     private String content;
     @NotNull
+    @Positive
     private Long userId;
     @NotNull
+    @Positive
     private Long filmId;
     @NotNull
     private Boolean isPositive;
