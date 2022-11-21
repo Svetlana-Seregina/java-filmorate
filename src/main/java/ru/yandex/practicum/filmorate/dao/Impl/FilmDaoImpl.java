@@ -96,6 +96,19 @@ public class FilmDaoImpl implements FilmDao {
         return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
     }
 
+    @Override
+    public List<Film> getFilmsByDirector(Long directorId, String sortType){
+        if (sortType.equals("year")){
+
+        } else if(sortType.equals("likes")){
+
+        } else {
+
+        }
+
+        return new ArrayList<>();
+    }
+
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
                 .id(resultSet.getLong("film_id"))
