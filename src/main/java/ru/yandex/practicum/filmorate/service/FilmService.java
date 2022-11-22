@@ -43,5 +43,12 @@ public class FilmService {
         return filmDao.deleteFilm(filmId);
     }
 
+   public List<Film> searchFilmsBySubstring(String query, String by) {
+       List<Film> filmsList = filmDao.searchFilmsBySubstring(query, by);
+       genreDao.loadFilmsGenres(filmsList);
+       return filmsList;
+    }
+
+
 }
 

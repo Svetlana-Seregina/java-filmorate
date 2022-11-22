@@ -66,4 +66,12 @@ public class FilmController {
         return filmService.deleteFilm(id);
     }
 
+
+    //GET /films/search?query=крад&by=director,title
+    @GetMapping("/search")
+    public List<Film> searchFilmsBySubstring(@RequestParam(value = "query") String query,
+                                  @RequestParam(value = "by", required = false, defaultValue = "title") String by) {
+        return filmService.searchFilmsBySubstring(query, by);
+    }
+
 }
