@@ -6,7 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
-
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -30,11 +29,13 @@ public class ReviewController {
 
     @PutMapping
     public Review updateReview(@Valid @RequestBody Review review) {
+        log.info("Запрошено обновление отзыва с ID = " + review.getReviewId());
         return reviewService.updateReview(review);
     }
 
     @DeleteMapping("/{reviewId}")
     public boolean removeReview(@Valid @PathVariable long reviewId) {
+        log.info("Запрошено удаление отзыва с ID = " + reviewId);
         return reviewService.removeReview(reviewId);
     }
 
@@ -46,9 +47,35 @@ public class ReviewController {
     @GetMapping()
     public List<Review> getReviewByFilmId(@RequestParam Optional<Long> filmId, @RequestParam Optional<Integer> count) {
         if (filmId.isPresent()) {
+            log.info("Запрошен список отзывов для фильма с ID = " + filmId.get());
             return reviewService.getReviewByFilmId(filmId.get(), count);
         } else {
+            log.info("Запрошен список отзывов для фильмов. Параметр \"ID фильма\" не задан");
             return reviewService.getAllReviews();
         }
+    }
+
+    @PutMapping("/{reviewId}/like/{userId}")
+    public boolean addLikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+        log.info("Запрошено добавление лайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
+        return reviewService.addLikeToReview(reviewId, userId);
+    }
+
+    @PutMapping("/{reviewId}/dislike/{userId}")
+    public boolean addDislikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+        log.info("Запрошено добавление дизлайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
+        return reviewService.addDislikeToReview(reviewId, userId);
+    }
+
+    @DeleteMapping("/{reviewId}/like/{userId}")
+    public boolean RemoveLikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+        log.info("Запрошено удаление лайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
+        return reviewService.removeLikeDislikeFromReview(reviewId, userId);
+    }
+
+    @DeleteMapping("/{reviewId}/dislike/{userId}")
+    public boolean RemoveDislikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+        log.info("Запрошено удаление дизлайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
+        return reviewService.removeLikeDislikeFromReview(reviewId, userId);
     }
 }

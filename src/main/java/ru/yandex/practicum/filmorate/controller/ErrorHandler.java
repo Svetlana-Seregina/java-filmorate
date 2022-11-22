@@ -34,7 +34,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleEntityNotFoundException(final EntityNotFoundException e) {
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
         log.info("Запрашиваемый объект не найден: " + e.getMessage());
         return new ErrorResponse(e.getMessage());
     }

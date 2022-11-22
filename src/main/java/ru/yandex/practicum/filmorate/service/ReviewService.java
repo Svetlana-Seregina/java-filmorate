@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
+import ru.yandex.practicum.filmorate.dao.ReviewLikeDao;
 import ru.yandex.practicum.filmorate.model.Review;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +14,7 @@ import java.util.Optional;
 @Slf4j
 public class ReviewService {
     private final ReviewDao reviewDao;
+    private final ReviewLikeDao reviewLikeDao;
 
     public Review createReview(Review review) {
         return reviewDao.createReview(review);
@@ -36,6 +37,20 @@ public class ReviewService {
     }
 
     public List<Review> getReviewByFilmId(long filmId, Optional<Integer> count) {
-        return reviewDao.getReviewByFilmId(filmId, count);
+        return reviewDao.getReviewsByFilmId(filmId, count);
     }
+
+    public boolean addLikeToReview(long reviewId, long userId) {
+        return reviewLikeDao.addLikeToReview(reviewId, userId);
+    }
+
+    public boolean addDislikeToReview(long reviewId, long userId) {
+        return reviewLikeDao.addDislikeToReview(reviewId, userId);
+    }
+
+    public boolean removeLikeDislikeFromReview(long reviewId, long userId ) {
+        return reviewLikeDao.removeLikeDislikeFromReview(reviewId, userId);
+    }
+
+
 }

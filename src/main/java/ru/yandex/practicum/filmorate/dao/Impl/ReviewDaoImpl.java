@@ -2,8 +2,6 @@ package ru.yandex.practicum.filmorate.dao.Impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,7 +11,8 @@ import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.dao.ReviewLikeDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,32 +26,33 @@ import java.util.Optional;
 public class ReviewDaoImpl implements ReviewDao {
     private final JdbcTemplate jdbcTemplate;
     private final ReviewLikeDao reviewLikeDao;
+    private final UserService userService;
+    private final FilmService filmService;
 
     @Override
     public Review createReview(Review review) {
-        try {
-            String sqlQuery = "INSERT INTO reviews (content, user_id, film_id, is_positive)" +
-                    " values (?, ?, ?, ?)";
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        //делаю поиск пользователя или фильма, если их нет, то соответствующие методы выбросят исключение
+        userService.findUserById(review.getUserId());
+        filmService.getFilmById(review.getFilmId());
 
-            jdbcTemplate.update(connection -> {
-                PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"review_id"});
-                stmt.setString(1, review.getContent());
-                stmt.setLong(2, review.getUserId());
-                stmt.setLong(3, review.getFilmId());
-                stmt.setBoolean(4, review.getIsPositive());
-                return stmt;
-            }, keyHolder);
+        String sqlQuery = "INSERT INTO reviews (content, user_id, film_id, is_positive)" +
+                " values (?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            long reviewId = Objects.requireNonNull(keyHolder.getKey()).longValue();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"review_id"});
+            stmt.setString(1, review.getContent());
+            stmt.setLong(2, review.getUserId());
+            stmt.setLong(3, review.getFilmId());
+            stmt.setBoolean(4, review.getIsPositive());
+            return stmt;
+        }, keyHolder);
 
-            review.setReviewId(reviewId);
-            review.setUseful(0L);
-            return review;
-        } catch (DataIntegrityViolationException e) {
-            log.warn("Пользователь или фильм не найден в базе");
-            throw new EntityNotFoundException("Пользователь или фильм не найден в базе");
-        }
+        long reviewId = Objects.requireNonNull(keyHolder.getKey()).longValue();
+
+        review.setReviewId(reviewId);
+        review.setUseful(0L);
+        return review;
     }
 
     @Override
@@ -81,7 +81,9 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public List<Review> getAllReviews() {
         String sqlQuery = "SELECT * FROM reviews";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToReview);
+        List<Review> res = jdbcTemplate.query(sqlQuery, this::mapRowToReview);
+        res.sort((t1, t2) -> (int) (t2.getUseful() - t1.getUseful()));
+        return res;
     }
 
     @Override
@@ -95,7 +97,7 @@ public class ReviewDaoImpl implements ReviewDao {
     }
 
     @Override
-    public List<Review> getReviewByFilmId(long filmId, Optional<Integer> count) {
+    public List<Review> getReviewsByFilmId(long filmId, Optional<Integer> count) {
         String sqlFilmRow;
 
         if (count.isPresent()) {
@@ -104,16 +106,18 @@ public class ReviewDaoImpl implements ReviewDao {
             sqlFilmRow = "SELECT * FROM reviews WHERE film_id = ?";
         }
         try {
+            List<Review> reviews;
             if (count.isPresent()) {
-                return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId, count.get());
+                reviews = jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId, count.get());
             } else {
-                return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId);
+                reviews = jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId);
             }
+            reviews.sort((t1, t2) -> (int) (t2.getUseful() - t1.getUseful()));
+            return reviews;
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Отзыв для фильма filmd_id=%d не найден", filmId));
         }
     }
-
 
     private Review mapRowToReview(ResultSet resultSet, int rowNum) throws SQLException {
         return Review.builder()

@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.ReviewLikeDao;
 
-import java.util.List;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -16,30 +14,29 @@ public class ReviewLikeDaoImpl implements ReviewLikeDao {
 
     @Override
     public boolean addLikeToReview(Long reviewId, Long userId) {
-        return false;
+        String sqlQuery = "INSERT INTO review_likes (review_id, user_id, islike)" +
+                " values (?, ?, true)";
+        return jdbcTemplate.update(sqlQuery, reviewId, userId) > 0;
     }
 
     @Override
     public boolean addDislikeToReview(Long reviewId, Long userId) {
-        return false;
+        String sqlQuery = "INSERT INTO review_likes (review_id, user_id, islike)" +
+                " values (?, ?, false)";
+        return jdbcTemplate.update(sqlQuery, reviewId, userId) > 0;
     }
 
     @Override
-    public boolean removeLikeFromReview(Long reviewId, Long userId) {
-        return false;
-    }
-
-    @Override
-    public boolean removeDislikeFromReview(Long reviewId, Long userId) {
-        return false;
+    public boolean removeLikeDislikeFromReview(Long reviewId, Long userId) {
+        String sqlQuery = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
+        return jdbcTemplate.update(sqlQuery, reviewId, userId) > 0;
     }
 
     @Override
     public Long calculateRating(Long reviewId) {
         String sqlQuery = "SELECT SUM (CASE WHEN islike = true THEN 1 " +
-                "WHEN islike = false THEN 0 END) as rating " +
+                "WHEN islike = false THEN -1 END) as rating " +
                 "FROM review_likes WHERE review_id = ?";
-
         return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> rs.getLong("rating"), reviewId);
     }
 }
