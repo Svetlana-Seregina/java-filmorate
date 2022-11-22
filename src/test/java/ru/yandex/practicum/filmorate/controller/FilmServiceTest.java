@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-public class FilmControllerTest {
+public class FilmServiceTest {
 
     //private final FilmController filmController;
 

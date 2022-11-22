@@ -30,6 +30,7 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
+        log.debug("Обрабатываем запрос на создание фильма " + film);
         return filmService.createFilm(film);
     }
 
@@ -72,6 +73,13 @@ public class FilmController {
     public List<Film> searchFilmsBySubstring(@RequestParam(value = "query") String query,
                                   @RequestParam(value = "by", required = false, defaultValue = "title") String by) {
         return filmService.searchFilmsBySubstring(query, by);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Long directorId, @RequestParam String sortBy){
+        log.debug("Обрабатываем запрос на получение списка фильмов режиссера с id " + directorId +
+                " отсортированных по признаку " + sortBy);
+        return filmService.getFilmsByDirector(directorId, sortBy);
     }
 
 }
