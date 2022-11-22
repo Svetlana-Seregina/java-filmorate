@@ -43,6 +43,10 @@ public class FilmDaoImpl implements FilmDao {
     public Film createFilm(Film film) {
         String sqlQuery = "INSERT INTO FILMS(NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA_ID) " +
                 "values (?, ?, ?, ?, ?, ?)";
+        //В тестах PostMan для создания режиссера нет поля рейтинг, поэтому добавил проверку на пустое значение
+        if (film.getRate() == null) {
+            film.setRate(0);
+        }
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"film_id"});
@@ -89,11 +93,45 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public List<Film> findAll() {
-        String sqlQuery = "SELECT film_id, films.name, description, release_date, duration, rate, films.mpa_id, mpa.NAME AS mpa_name" +
+        String sqlQuery = "SELECT film_id, films.name, description, release_date, duration, rate, " +
+                "films.mpa_id, mpa.NAME AS mpa_name" +
                 " FROM films" +
                 " INNER JOIN mpa ON mpa.MPA_ID = films.MPA_ID";
 
         return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        String sqlQuery;
+        if (sortBy.equals("year")) {
+            sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, " +
+                    "f.duration, f.rate, f.mpa_id, mpa.name AS mpa_name " +
+                    "FROM film_directors " +
+                    "LEFT JOIN films AS f ON film_directors.film_id = f.film_id " +
+                    "LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id " +
+                    "WHERE director_id = ?" +
+                    "ORDER BY release_date";
+        } else if (sortBy.equals("likes")) {
+            sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, " +
+                    "f.duration, f.rate, f.mpa_id, mpa.name AS mpa_name, likes_by_film.likes_count " +
+                    "FROM film_directors " +
+                    "LEFT JOIN films AS f ON film_directors.film_id = f.film_id " +
+                    "LEFT JOIN (SELECT film_id, COUNT(film_id) AS likes_count " +
+                    "FROM likes GROUP BY film_id) AS likes_by_film ON likes_by_film.film_id = f.film_id " +
+                    "LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id " +
+                    "WHERE director_id = ?" +
+                    "ORDER BY likes_by_film.likes_count DESC";
+        } else {
+            log.debug("Такая сортировка не поддерживается");
+            return new ArrayList<>();
+        }
+        List<Film> sortedFilms = jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm, directorId);
+        if (sortedFilms.isEmpty()) {
+            throw new EntityNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
+        }
+        return sortedFilms;
+
     }
 
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -109,7 +147,7 @@ public class FilmDaoImpl implements FilmDao {
                         .name(resultSet.getString("mpa_name"))
                         .build())
                 .genres(new ArrayList<>())
+                .directors(new ArrayList<>())
                 .build();
     }
-
 }

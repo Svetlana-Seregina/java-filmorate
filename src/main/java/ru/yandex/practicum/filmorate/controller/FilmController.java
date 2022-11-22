@@ -30,6 +30,7 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
+        log.debug("Обрабатываем запрос на создание фильма " + film);
         return filmService.createFilm(film);
     }
 
@@ -64,6 +65,13 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public boolean deleteFilm(@PathVariable Long id) {
         return filmService.deleteFilm(id);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Long directorId, @RequestParam String sortBy){
+        log.debug("Обрабатываем запрос на получение списка фильмов режиссера с id " + directorId +
+                " отсортированных по признаку " + sortBy);
+        return filmService.getFilmsByDirector(directorId, sortBy);
     }
 
 }
