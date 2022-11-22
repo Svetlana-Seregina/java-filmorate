@@ -28,4 +28,8 @@ public class UserService {
         return userStorage.findUserById(userId);
     }
 
+    public boolean deleteUser(long userId) {
+        return userStorage.deleteUser(userId);
+    }
+
 }

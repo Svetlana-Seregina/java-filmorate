@@ -77,6 +77,12 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
         return jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser);
     }
 
+    @Override
+    public boolean deleteUser(long userId) {
+        String sqlQuery = "DELETE FROM users WHERE user_id = ?";
+        return jdbcTemplate.update(sqlQuery, userId) > 0;
+    }
+
     public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getLong("user_id"))
