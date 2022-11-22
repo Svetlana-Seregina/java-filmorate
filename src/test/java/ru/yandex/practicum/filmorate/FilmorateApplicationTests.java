@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -211,6 +210,4 @@ class FilmorateApplicationTests {
 		directorDaoImpl.deleteDirector(2l);
 		assertEquals(directorDaoImpl.getAll().size(), 1);
 	}
-
-
 }
