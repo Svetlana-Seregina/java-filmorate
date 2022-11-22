@@ -19,4 +19,10 @@ public interface DirectorDao {
 
     void addDirectorsToFilm(Film film);
 
+    void loadFilmsDirectors(List<Film> films);
+
+    Film updateFilmDirectors(Film film);
+
+    void deleteFilmDirectors(Film film);
+
 }

@@ -22,7 +22,7 @@ public class Film{
     private final LocalDate releaseDate;
     @Positive // запрет на передачу отрицательного значения
     private final int duration;
-    private final Integer rate;
+    private Integer rate;
 
     // MPA рейтинг фильма.
     // Рейтинг Ассоциации кинокомпаний (англ. Motion Picture Association, сокращённо МРА)

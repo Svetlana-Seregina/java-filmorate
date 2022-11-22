@@ -13,6 +13,6 @@ public class Director {
 
     @NotBlank
     @NotNull
-    private final String name;
+    private String name;
 
 }

@@ -2,21 +2,21 @@ package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.dao.Impl.*;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -28,6 +28,8 @@ class FilmorateApplicationTests {
 	private final GenreDaoImpl genreDaoImpl;
 	private final MpaDaoImpl mpaDaoImpl;
 	private final LikeDaoImpl likeDaoImpl;
+
+	private final DirectorDaoImpl directorDaoImpl;
 
 	@Test
 	void contextLoads() {
@@ -122,6 +124,7 @@ class FilmorateApplicationTests {
 				.rate(4)
 				.mpa(Mpa.builder().id(1L).name("G").build())
 				.genres(List.of(Genre.builder().id(1L).name("Комедия").build()))
+				.directors(new ArrayList<>())
 				.build());
 		genreDaoImpl.addGenresToFilm(film);
 
@@ -183,5 +186,31 @@ class FilmorateApplicationTests {
 		assertThat(mpaDaoImpl.findAllMpa().size())
 				.isEqualTo(5);
 	}
+
+	@Test
+	public void testCreateUpdateAndGetDirector(){
+		Director director = Director.builder()
+				.id(1L)
+				.name("test")
+				.build();
+		directorDaoImpl.createDirector(director);
+		assertEquals(directorDaoImpl.getDirectorById(1l), director);
+		director.setName("newName");
+		directorDaoImpl.updateDirector(director);
+		assertEquals(directorDaoImpl.getDirectorById(1l).getName(), "newName");
+	}
+
+	@Test
+	public void testDeleteAndGetAllDirectors() {
+		Director director = Director.builder()
+				.id(1L)
+				.name("test")
+				.build();
+		directorDaoImpl.createDirector(director);
+		assertEquals(directorDaoImpl.getAll().size(), 2);
+		directorDaoImpl.deleteDirector(2l);
+		assertEquals(directorDaoImpl.getAll().size(), 1);
+	}
+
 
 }

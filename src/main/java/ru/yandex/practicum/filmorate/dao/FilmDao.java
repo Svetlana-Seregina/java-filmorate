@@ -11,6 +11,6 @@ public interface FilmDao {
     boolean deleteFilm(Long filmId);
     void updateFilm(Film film);
     List<Film> findAll();
-    List<Film> getFilmsByDirector(Long directorId, String sortType);
+    List<Film> getFilmsByDirector(Long directorId, String sortBy);
 
 }

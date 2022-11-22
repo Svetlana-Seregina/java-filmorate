@@ -67,9 +67,11 @@ public class FilmController {
         return filmService.deleteFilm(id);
     }
 
-    @GetMapping("/director/{directorId}?sortBy=sortType")
-    public List<Film> getFilmsByDirector(@PathVariable Long directorId, String sortType){
-        return filmService.getFilmsByDirector(directorId, sortType);
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Long directorId, @RequestParam String sortBy){
+        log.debug("Обрабатываем запрос на получение списка фильмов режиссера с id " + directorId +
+                " отсортированных по признаку " + sortBy);
+        return filmService.getFilmsByDirector(directorId, sortBy);
     }
 
 }

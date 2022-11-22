@@ -44,7 +44,7 @@ public class DirectorController {
 
     @DeleteMapping("/{id}")
     public boolean deleteDirector(@PathVariable Long id) {
-        log.debug("Обрабатываем запрос на удаление режиссера с id" + id);
+        log.debug("Обрабатываем запрос на удаление режиссера с id " + id);
         return directorService.deleteDirector(id);
     }
 

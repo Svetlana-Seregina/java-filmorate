@@ -20,9 +20,10 @@ public class FilmService {
     private final DirectorDao directorDao;
 
 
-    public List<Film> findAll(){
+    public List<Film> findAll() {
         List<Film> allFilms = filmDao.findAll();
         genreDao.loadFilmsGenres(allFilms);
+        directorDao.loadFilmsDirectors(allFilms);
         return allFilms;
     }
 
@@ -35,11 +36,13 @@ public class FilmService {
 
     public Film createFilm(Film film) {
         filmDao.createFilm(film);
+        directorDao.updateFilmDirectors(film);
         return genreDao.updateFilmGenres(film);
     }
 
     public Film updateFilm(Film film) {
         filmDao.updateFilm(film);
+        directorDao.updateFilmDirectors(film);
         return genreDao.updateFilmGenres(film);
     }
 
@@ -47,8 +50,11 @@ public class FilmService {
         return filmDao.deleteFilm(filmId);
     }
 
-    public List<Film> getFilmsByDirector(Long directorId, String sortType){
-        return filmDao.getFilmsByDirector(directorId, sortType);
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        List<Film> filmsByDirector = filmDao.getFilmsByDirector(directorId, sortBy);
+        genreDao.loadFilmsGenres(filmsByDirector);
+        directorDao.loadFilmsDirectors(filmsByDirector);
+        return filmsByDirector;
     }
 
 }
