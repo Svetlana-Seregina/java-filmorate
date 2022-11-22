@@ -150,18 +150,19 @@ public class FilmDaoImpl implements FilmDao {
                 .filter(Objects::nonNull)
                 .distinct()
                 .map(column -> "LOWER(" + column +") LIKE '%" + query.toLowerCase() + "%'")
-                .collect(Collectors.joining( " AND " ));
+                .collect(Collectors.joining( " OR " ));
 
         String sqlFilmRow = "SELECT *, mpa.NAME AS mpa_name FROM FILMS "+
-                "LEFT JOIN DIRECTORS on FILMS.DIRECTOR_ID = DIRECTORS.DIRECTOR_ID " +
+                "LEFT JOIN FILM_DIRECTORS on FILMS.FILM_ID = FILM_DIRECTORS.FILM_ID " +
+                "LEFT JOIN DIRECTORS ON FILM_DIRECTORS.DIRECTOR_ID = DIRECTORS.DIRECTOR_ID " +
                 "LEFT JOIN (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count FROM LIKES GROUP BY FILM_ID) " +
                 "AS likes_by_film ON likes_by_film.FILM_ID = FILMS.FILM_ID " +
                 "INNER JOIN mpa ON mpa.MPA_ID = FILMS.MPA_ID " +
                 "WHERE " + where +
                 " ORDER BY likes_by_film.likes_count DESC";
-
+        log.info("Запрос на получение по строке поиска {}, {}", query, by);
         List<Film> films = jdbcTemplate.query(sqlFilmRow, FilmDaoImpl::mapRowToFilm);
-
+        log.info("Получаем по строке {}", films);
         return films;
     }
 
