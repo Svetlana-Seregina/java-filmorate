@@ -24,5 +24,4 @@ public interface DirectorDao {
     Film updateFilmDirectors(Film film);
 
     void deleteFilmDirectors(Film film);
-
 }

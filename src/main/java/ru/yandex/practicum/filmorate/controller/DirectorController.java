@@ -47,5 +47,4 @@ public class DirectorController {
         log.debug("Обрабатываем запрос на удаление режиссера с id " + id);
         return directorService.deleteDirector(id);
     }
-
 }

@@ -56,6 +56,4 @@ public class FilmService {
         directorDao.loadFilmsDirectors(filmsByDirector);
         return filmsByDirector;
     }
-
 }
-

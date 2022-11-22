@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DirectorDaoImpl implements DirectorDao {
 
-
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -41,17 +40,22 @@ public class DirectorDaoImpl implements DirectorDao {
             stmt.setString(1, director.getName());
             return stmt;
         }, keyHolder);
-        return getDirectorById(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        long directorId = Objects.requireNonNull(keyHolder.getKey()).longValue();
+        director.setId(directorId);
+        return director;
     }
 
     @Override
     public Director updateDirector(Director director) {
         String sqlQuery = "UPDATE directors SET name = ? WHERE director_id = ?";
-        jdbcTemplate.update(
+        int updatedRows = jdbcTemplate.update(
                 sqlQuery,
                 director.getName(),
                 director.getId());
-        return getDirectorById(director.getId());
+        if (updatedRows == 0) {
+            throw new EntityNotFoundException("Режиссер с id " + director.getId() + " не найден");
+        }
+        return director;
     }
 
     @Override
@@ -75,7 +79,6 @@ public class DirectorDaoImpl implements DirectorDao {
         return jdbcTemplate.update(sqlQuery, directorId) > 0;
     }
 
-
     @Override
     public void addDirectorsToFilm(Film film) {
         String sqlSelectFilmDirectors = "SELECT directors.director_id, directors.name " +
@@ -86,7 +89,6 @@ public class DirectorDaoImpl implements DirectorDao {
                 this::directorRowToDirector, film.getId());
         film.setDirectors(directors);
     }
-
 
     @Override
     public void loadFilmsDirectors(List<Film> films) {
@@ -118,21 +120,16 @@ public class DirectorDaoImpl implements DirectorDao {
         }
     }
 
-
     @Override
     public Film updateFilmDirectors(Film film) {
-        List<Director> filmDirectors = film.getDirectors();
-        if (filmDirectors == null) {
-            deleteFilmDirectors(film);
+        deleteFilmDirectors(film);
+        if (film.getDirectors() == null) {
             film.setDirectors(new ArrayList<>());
             return film;
         }
-        filmDirectors = filmDirectors.stream().distinct().collect(Collectors.toList());
-        Long filmId = film.getId();
-        deleteFilmDirectors(film);
-
+        List<Director> filmDirectors = film.getDirectors().stream().distinct().collect(Collectors.toList());
         List<Object[]> args = filmDirectors.stream()
-                .map(director -> new Object[]{filmId, director.getId()})
+                .map(director -> new Object[]{film.getId(), director.getId()})
                 .collect(Collectors.toList());
         jdbcTemplate.batchUpdate("INSERT INTO film_directors (FILM_ID, DIRECTOR_ID) VALUES (?, ?)", args);
         film.setDirectors(filmDirectors);
@@ -152,5 +149,4 @@ public class DirectorDaoImpl implements DirectorDao {
                 .name(resultSet.getString("name"))
                 .build();
     }
-
 }
