@@ -7,7 +7,10 @@ import java.util.List;
 public interface LikeDao {
 
     boolean addLikeToFilm(Long id, Long userId);
+
     boolean removeLikeFromFilm(Long filmId, Long userId);
+
     List<Film> findPopularFilms(Integer count);
 
+    List<Long> getRecommendations(Long userId);
 }

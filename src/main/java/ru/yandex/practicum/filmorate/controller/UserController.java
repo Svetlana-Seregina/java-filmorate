@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FriendsService;
+import ru.yandex.practicum.filmorate.service.LikeService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import javax.validation.Valid;
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.*;
 public class UserController {
     private final UserService userService;
     private final FriendsService friendsService;
+    private final LikeService likeService;
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
@@ -71,8 +73,8 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/recommendations")
-    public List<Film> recommendations(@PathVariable Long userId) {
-        return null;
+    public List<Film> getRecommendations(@PathVariable Long userId) {
+        return likeService.getRecommendations(userId);
     }
 
     @DeleteMapping("/{userId}")
