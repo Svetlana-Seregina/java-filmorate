@@ -77,6 +77,7 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
         return jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser);
     }
 
+
     public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getLong("user_id"))
