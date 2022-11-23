@@ -45,12 +45,13 @@ public class LikeDaoImpl implements LikeDao {
 
     @Override
     public List<Long> getRecommendations(Long firstUserId) {
-        String sqlQuery = "SELECT user_id, count(*) as cnt FROM likes WHERE film_id IN ( \n" +
-                "SELECT film_id  FROM films WHERE film_id IN (\n" +
-                "                SELECT film_id FROM likes WHERE user_id = ?))\n" +
-                "                AND user_id != ?\n" +
-                "GROUP BY user_id\n" +
-                "ORDER BY cnt DESC\n" +
+        String sqlQuery = "SELECT user_id, count(*) as cnt FROM likes " +
+                "WHERE film_id IN (" +
+                "SELECT film_id  FROM films WHERE film_id IN (" +
+                "   SELECT film_id FROM likes WHERE user_id = ?))" +
+                "   AND user_id != ?" +
+                "GROUP BY user_id " +
+                "ORDER BY cnt DESC " +
                 "LIMIT 1";
 
         long secondUserId;
@@ -58,11 +59,12 @@ public class LikeDaoImpl implements LikeDao {
              secondUserId = jdbcTemplate.queryForObject(sqlQuery,(rs, rowNum) -> rs.getLong("user_id")
                     , firstUserId, firstUserId);
         } catch (EmptyResultDataAccessException e) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
-        sqlQuery = "SELECT FILM_ID  FROM FILMS WHERE FILM_ID IN (\n" +
-                "SELECT FILM_ID  FROM LIKES WHERE user_id = ?\n" +
+        sqlQuery = "SELECT FILM_ID  FROM FILMS " +
+                "WHERE FILM_ID IN (" +
+                "SELECT FILM_ID  FROM LIKES WHERE user_id = ? " +
                 "AND FILM_ID NOT IN (SELECT FILM_ID  FROM LIKES WHERE user_id = ?))";
 
         return jdbcTemplate.query(sqlQuery,(rs, rowNum) -> rs.getLong("film_id"), secondUserId, firstUserId);

@@ -92,5 +92,4 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
                 .birthday(resultSet.getDate("BIRTHDAY").toLocalDate())
                 .build();
     }
-
 }

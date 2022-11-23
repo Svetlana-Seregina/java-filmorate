@@ -38,7 +38,7 @@ public class LikeService {
 
     public List<Film> getRecommendations (Long userId) {
         List<Film> films = new ArrayList<>();
-        likeDao.getRecommendations(userId).stream().forEach(t -> films.add(filmService.getFilmById(t)));
+        likeDao.getRecommendations(userId).forEach(t -> films.add(filmService.getFilmById(t)));
         return films;
     }
 }

@@ -8,11 +8,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
-import ru.yandex.practicum.filmorate.dao.ReviewLikeDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -80,7 +77,6 @@ public class ReviewDaoImpl implements ReviewDao {
                 "GROUP BY r.review_id " +
                 "ORDER BY rating DESC";;
         List<Review> res = jdbcTemplate.query(sqlQuery, this::mapRowToReview);
-        //   res.sort((t1, t2) -> (int) (t2.getUseful() - t1.getUseful()));
         return res;
     }
 

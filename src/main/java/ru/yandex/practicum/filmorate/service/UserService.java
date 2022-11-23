@@ -31,5 +31,4 @@ public class UserService {
     public boolean deleteUser(long userId) {
         return userStorage.deleteUser(userId);
     }
-
 }
