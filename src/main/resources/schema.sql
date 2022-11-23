@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS films
 
 CREATE TABLE IF NOT EXISTS friend
 (
-    user_id   BIGINT REFERENCES users (user_id),
-    friend_id BIGINT REFERENCES users (user_id),
+    user_id   BIGINT REFERENCES users (user_id) ,
+    friend_id BIGINT REFERENCES users (user_id) ,
     CONSTRAINT friends_pk PRIMARY KEY (user_id, friend_id)
 );
 

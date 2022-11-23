@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.LikeService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.time.LocalDate;
 import java.util.*;
 
 @RequestMapping("/films")
@@ -41,10 +43,15 @@ public class FilmController {
         return filmService.findAll();
     }
 
+
+    // GET /films/popular?count={limit}&genreId={genreId}&year={year}
     @GetMapping("/popular")
-    public List<Film> findPopularsFilms(@Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
-        log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}", likeService.findPopularFilms(count));
-        return likeService.findPopularFilms(count);
+    public List<Film> findPopularsFilms(
+            @Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count,
+            @RequestParam(value = "genreId", required = false) Long genreId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy")Date year) {
+        log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}", likeService.findPopularFilms(count, genreId, year));
+        return likeService.findPopularFilms(count, genreId, year);
     }
 
     @PutMapping

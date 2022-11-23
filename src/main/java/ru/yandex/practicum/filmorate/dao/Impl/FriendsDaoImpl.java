@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
@@ -20,9 +21,9 @@ public class FriendsDaoImpl implements FriendsDao {
 
     @Override
     public List<User> getSetOfFriends(Long userId) {
-        String sqlQuery = "SELECT * FROM USERS u, FRIEND f where u.USER_ID = f.FRIEND_ID AND f.USER_ID = ?";
-        List<User> listOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId);
-        return listOfFriends;
+            String sqlQuery = "SELECT * FROM USERS u, FRIEND f where u.USER_ID = f.FRIEND_ID AND f.USER_ID = ?";
+            List<User> listOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId);
+            return listOfFriends;
     }
 
     @Override

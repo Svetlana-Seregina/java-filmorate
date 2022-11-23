@@ -61,6 +61,7 @@ public class UserController {
         friendsService.deleteFriendFromSetOfFriends(id, friendId);
     }
 
+
     private void validationUser (User user) {
         if (user.getLogin().contains(" ")) {
             throw new ValidationException("Логин не может содержать пробелы");

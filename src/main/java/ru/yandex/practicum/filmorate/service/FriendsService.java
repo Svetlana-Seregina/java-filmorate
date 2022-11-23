@@ -12,8 +12,9 @@ import java.util.List;
 public class FriendsService {
 
     private final FriendsDao friendsDao;
-
+    private final UserService userService;
     public List<User> getSetOfFriends(Long userId){
+        userService.findUserById(userId);
         return friendsDao.getSetOfFriends(userId);
     }
 

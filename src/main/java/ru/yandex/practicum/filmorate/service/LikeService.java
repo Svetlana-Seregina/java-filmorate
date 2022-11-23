@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -18,8 +19,8 @@ public class LikeService {
     private final GenreDao genreDao;
     private final LikeDao likeDao;
 
-    public List<Film> findPopularFilms(Integer count) {
-        List<Film> popularFilms = likeDao.findPopularFilms(count);
+    public List<Film> findPopularFilms(Integer count, Long genreId, Date year) {
+        List<Film> popularFilms = likeDao.findPopularFilms(count, genreId, year);
         genreDao.loadFilmsGenres(popularFilms);
         return popularFilms;
     }

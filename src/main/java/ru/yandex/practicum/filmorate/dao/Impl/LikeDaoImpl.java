@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class LikeDaoImpl implements LikeDao {
     }
 
     @Override
-    public List<Film> findPopularFilms(Integer count) {
+    public List<Film> findPopularFilms(Integer count, Long genreId, Date year) {
         String sqlQuery = "SELECT *, mpa.NAME AS mpa_name " +
                 " FROM FILMS AS f LEFT JOIN " +
                 " (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count " +
