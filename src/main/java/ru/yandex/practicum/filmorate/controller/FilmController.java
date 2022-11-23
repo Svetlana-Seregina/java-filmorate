@@ -50,7 +50,9 @@ public class FilmController {
             @Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count,
             @RequestParam(value = "genreId", required = false) Long genreId,
             @RequestParam @DateTimeFormat(pattern = "yyyy")Date year) {
-        log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}", likeService.findPopularFilms(count, genreId, year));
+        log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}" +
+                ", жанров = " + genreId + " {}", ", года = " + year + " {}",
+                likeService.findPopularFilms(count, genreId, year));
         return likeService.findPopularFilms(count, genreId, year);
     }
 
