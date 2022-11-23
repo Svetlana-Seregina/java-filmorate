@@ -26,15 +26,9 @@ import java.util.Optional;
 public class ReviewDaoImpl implements ReviewDao {
     private final JdbcTemplate jdbcTemplate;
     private final ReviewLikeDao reviewLikeDao;
-    private final UserService userService;
-    private final FilmService filmService;
 
     @Override
     public Review createReview(Review review) {
-        //делаю поиск пользователя или фильма, если их нет, то соответствующие методы выбросят исключение
-        userService.findUserById(review.getUserId());
-        filmService.getFilmById(review.getFilmId());
-
         String sqlQuery = "INSERT INTO reviews (content, user_id, film_id, is_positive)" +
                 " values (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -80,7 +74,11 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public List<Review> getAllReviews() {
-        String sqlQuery = "SELECT * FROM reviews";
+        String sqlQuery = " SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, SUM (CASE WHEN rl.islike = true THEN 1 " +
+                "WHEN rl.islike = false THEN -1 END) as rating FROM reviews r " +
+                "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
+                "GROUP BY r.review_id " +
+                "ORDER BY rating DESC";;
         List<Review> res = jdbcTemplate.query(sqlQuery, this::mapRowToReview);
         res.sort((t1, t2) -> (int) (t2.getUseful() - t1.getUseful()));
         return res;
@@ -88,7 +86,13 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public Review getReviewById(long reviewId) {
-        String sqlFilmRow = "SELECT * FROM reviews WHERE review_id = ?";
+        String sqlFilmRow =" SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
+                "SUM (CASE WHEN rl.islike = true THEN 1 " +
+                "WHEN rl.islike = false THEN -1 END) as rating FROM reviews r " +
+                "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
+                "WHERE r.review_id = ? " +
+                "GROUP BY r.review_id " +
+                "ORDER BY rating DESC";
         try {
             return jdbcTemplate.queryForObject(sqlFilmRow, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
@@ -98,22 +102,23 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public List<Review> getReviewsByFilmId(long filmId, Optional<Integer> count) {
-        String sqlFilmRow;
+        String sqlFilmRow = "SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
+                "SUM (CASE WHEN rl.islike = true THEN 1 " +
+                "WHEN rl.islike = false THEN -1 END) as rating FROM reviews r " +
+                "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
+                "WHERE r.FILM_ID = ? " +
+                "GROUP BY r.review_id " +
+                "ORDER BY rating DESC ";
 
         if (count.isPresent()) {
-            sqlFilmRow = "SELECT * FROM reviews WHERE film_id = ? LIMIT ?";
-        } else {
-            sqlFilmRow = "SELECT * FROM reviews WHERE film_id = ?";
+            sqlFilmRow = sqlFilmRow + " LIMIT ?";
         }
         try {
-            List<Review> reviews;
             if (count.isPresent()) {
-                reviews = jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId, count.get());
+                return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId, count.get());
             } else {
-                reviews = jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId);
+                return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId);
             }
-            reviews.sort((t1, t2) -> (int) (t2.getUseful() - t1.getUseful()));
-            return reviews;
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Отзыв для фильма filmd_id=%d не найден", filmId));
         }
@@ -126,7 +131,7 @@ public class ReviewDaoImpl implements ReviewDao {
                      .userId(resultSet.getLong("user_id"))
                      .filmId(resultSet.getLong("film_id"))
                      .isPositive(resultSet.getBoolean("is_positive"))
-                     .useful(reviewLikeDao.calculateRating(resultSet.getLong("review_id")))
+                     .useful(resultSet.getLong("rating"))
                      .build();
     }
 }

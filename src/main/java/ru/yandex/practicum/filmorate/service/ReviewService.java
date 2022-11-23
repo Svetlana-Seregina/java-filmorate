@@ -15,8 +15,13 @@ import java.util.Optional;
 public class ReviewService {
     private final ReviewDao reviewDao;
     private final ReviewLikeDao reviewLikeDao;
+    private final UserService userService;
+    private final FilmService filmService;
 
     public Review createReview(Review review) {
+        //делаю поиск пользователя или фильма, если их нет, то соответствующие методы выбросят исключение
+        userService.findUserById(review.getUserId());
+        filmService.getFilmById(review.getFilmId());
         return reviewDao.createReview(review);
     }
 
