@@ -1,12 +1,14 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 @Repository
@@ -20,16 +22,15 @@ public class FriendsDaoImpl implements FriendsDao {
 
     @Override
     public List<User> getSetOfFriends(Long userId) {
-        String sqlQuery = "SELECT * FROM USERS u, FRIEND f where u.USER_ID = f.FRIEND_ID AND f.USER_ID = ?";
-        List<User> listOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId);
-        return listOfFriends;
+            String sqlQuery = "SELECT * FROM USERS u, FRIEND f where u.USER_ID = f.FRIEND_ID AND f.USER_ID = ?";
+            List<User> listOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId);
+            return listOfFriends;
     }
 
     @Override
     public List<User> getSetOfCommonFriends(Long userId, Long otherId) {
         String sqlQuery = "SELECT * FROM USERS u, FRIEND f, FRIEND o " +
                 "where u.USER_ID = f.FRIEND_ID AND u.USER_ID = o.FRIEND_ID AND f.USER_ID = ? AND o.USER_ID = ?";
-
         List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId, otherId);
         return setOfFriends;
     }
@@ -49,5 +50,4 @@ public class FriendsDaoImpl implements FriendsDao {
         String sqlQuery = "delete from FRIEND where USER_ID = ? and FRIEND_ID = ?";
         return jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
     }
-
 }

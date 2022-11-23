@@ -6,6 +6,4 @@ public interface ReviewLikeDao {
     boolean addDislikeToReview(Long reviewId, Long userId);
 
     boolean removeLikeDislikeFromReview(Long reviewId, Long userId);
-
-    Long calculateRating(Long reviewId);
 }

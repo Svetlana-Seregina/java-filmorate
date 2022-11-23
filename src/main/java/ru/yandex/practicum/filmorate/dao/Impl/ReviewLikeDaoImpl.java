@@ -31,12 +31,4 @@ public class ReviewLikeDaoImpl implements ReviewLikeDao {
         String sqlQuery = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
         return jdbcTemplate.update(sqlQuery, reviewId, userId) > 0;
     }
-
-    @Override
-    public Long calculateRating(Long reviewId) {
-        String sqlQuery = "SELECT SUM (CASE WHEN islike = true THEN 1 " +
-                "WHEN islike = false THEN -1 END) as rating " +
-                "FROM review_likes WHERE review_id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> rs.getLong("rating"), reviewId);
-    }
 }
