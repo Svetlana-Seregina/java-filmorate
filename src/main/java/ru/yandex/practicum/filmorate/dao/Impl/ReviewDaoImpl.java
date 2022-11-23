@@ -25,7 +25,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewDaoImpl implements ReviewDao {
     private final JdbcTemplate jdbcTemplate;
-    private final ReviewLikeDao reviewLikeDao;
 
     @Override
     public Review createReview(Review review) {
@@ -75,12 +74,13 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public List<Review> getAllReviews() {
         String sqlQuery = " SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, SUM (CASE WHEN rl.islike = true THEN 1 " +
-                "WHEN rl.islike = false THEN -1 END) as rating FROM reviews r " +
+                "WHEN rl.islike = false THEN -1 " +
+                "WHEN rl.islike IS NULL THEN 0 END) as rating FROM reviews r " +
                 "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
                 "GROUP BY r.review_id " +
                 "ORDER BY rating DESC";;
         List<Review> res = jdbcTemplate.query(sqlQuery, this::mapRowToReview);
-        res.sort((t1, t2) -> (int) (t2.getUseful() - t1.getUseful()));
+        //   res.sort((t1, t2) -> (int) (t2.getUseful() - t1.getUseful()));
         return res;
     }
 
@@ -88,7 +88,8 @@ public class ReviewDaoImpl implements ReviewDao {
     public Review getReviewById(long reviewId) {
         String sqlFilmRow =" SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
                 "SUM (CASE WHEN rl.islike = true THEN 1 " +
-                "WHEN rl.islike = false THEN -1 END) as rating FROM reviews r " +
+                "WHEN rl.islike = false THEN -1 " +
+                "WHEN rl.islike IS NULL THEN 0 END) as rating FROM reviews r " +
                 "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
                 "WHERE r.review_id = ? " +
                 "GROUP BY r.review_id " +
@@ -104,7 +105,8 @@ public class ReviewDaoImpl implements ReviewDao {
     public List<Review> getReviewsByFilmId(long filmId, Optional<Integer> count) {
         String sqlFilmRow = "SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
                 "SUM (CASE WHEN rl.islike = true THEN 1 " +
-                "WHEN rl.islike = false THEN -1 END) as rating FROM reviews r " +
+                "WHEN rl.islike = false THEN -1 " +
+                "WHEN rl.islike IS NULL THEN 0 END) as rating FROM reviews r " +
                 "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
                 "WHERE r.FILM_ID = ? " +
                 "GROUP BY r.review_id " +

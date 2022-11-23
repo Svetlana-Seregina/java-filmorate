@@ -49,5 +49,4 @@ public class FriendsDaoImpl implements FriendsDao {
         String sqlQuery = "delete from FRIEND where USER_ID = ? and FRIEND_ID = ?";
         return jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
     }
-
 }

@@ -56,6 +56,4 @@ public class ReviewService {
     public boolean removeLikeDislikeFromReview(long reviewId, long userId ) {
         return reviewLikeDao.removeLikeDislikeFromReview(reviewId, userId);
     }
-
-
 }

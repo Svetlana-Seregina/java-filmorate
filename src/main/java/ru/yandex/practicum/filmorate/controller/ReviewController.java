@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
+
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class ReviewController {
     }
 
     @GetMapping()
-    public List<Review> getReviewByFilmId(@RequestParam Optional<Long> filmId, @RequestParam Optional<Integer> count) {
+    public List<Review> getAllReviewsOrByFilmId(@RequestParam Optional<Long> filmId, @RequestParam Optional<Integer> count) {
         if (filmId.isPresent()) {
             log.info("Запрошен список отзывов для фильма с ID = " + filmId.get());
             return reviewService.getReviewByFilmId(filmId.get(), count);

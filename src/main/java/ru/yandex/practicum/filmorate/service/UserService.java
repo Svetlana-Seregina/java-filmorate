@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dao.UserDao;
-
 import java.util.*;
 
 @Service
@@ -27,5 +26,4 @@ public class UserService {
     public User findUserById(Long userId) {
         return userStorage.findUserById(userId);
     }
-
 }
