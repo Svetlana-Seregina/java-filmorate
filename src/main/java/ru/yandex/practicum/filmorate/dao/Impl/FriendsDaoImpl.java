@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 @Repository
@@ -30,7 +31,6 @@ public class FriendsDaoImpl implements FriendsDao {
     public List<User> getSetOfCommonFriends(Long userId, Long otherId) {
         String sqlQuery = "SELECT * FROM USERS u, FRIEND f, FRIEND o " +
                 "where u.USER_ID = f.FRIEND_ID AND u.USER_ID = o.FRIEND_ID AND f.USER_ID = ? AND o.USER_ID = ?";
-
         List<User> setOfFriends = jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser, userId, otherId);
         return setOfFriends;
     }
