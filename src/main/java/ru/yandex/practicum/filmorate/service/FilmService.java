@@ -50,6 +50,15 @@ public class FilmService {
         return filmDao.deleteFilm(filmId);
     }
 
+   public List<Film> searchFilmsBySubstring(String query, String by) {
+       List<Film> filmsList = filmDao.searchFilmsBySubstring(query, by);
+       genreDao.loadFilmsGenres(filmsList);
+       directorDao.loadFilmsDirectors(filmsList);
+       log.info("Получены фильмы {}", filmsList);
+       return filmsList;
+    }
+
+
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         List<Film> filmsByDirector = filmDao.getFilmsByDirector(directorId, sortBy);
         genreDao.loadFilmsGenres(filmsByDirector);
