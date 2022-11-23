@@ -10,25 +10,25 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserDao userStorage;
+    private final UserDao userDao;
 
     public User createUser(User user) {
-        return userStorage.createUser(user);
+        return userDao.createUser(user);
     }
 
     public User updateUser(User user) {
-        return userStorage.updateUser(user);
+        return userDao.updateUser(user);
     }
 
     public Collection<User> findAllUsers() {
-        return userStorage.findAllUsers();
+        return userDao.findAllUsers();
     }
 
     public User findUserById(Long userId) {
-        return userStorage.findUserById(userId);
+        return userDao.findUserById(userId);
     }
 
     public boolean deleteUser(long userId) {
-        return userStorage.deleteUser(userId);
+        return userDao.deleteUser(userId);
     }
 }
