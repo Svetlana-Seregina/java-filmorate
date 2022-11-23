@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.dao.FilmDao;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -146,6 +147,38 @@ public class FilmDaoImpl implements FilmDao {
                 "ORDER BY likes_by_film.likes_count DESC";
         return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
     }
+
+    @Override
+    public List<Film> searchFilmsBySubstring(String query, String by) {
+
+        String where = Arrays.stream(by.split(","))
+                .map(searchBy -> {
+                    if (searchBy.equals("director")) {
+                        return "DIRECTORS.name";
+                    } else if (searchBy.equals("title")) {
+                        return "FILMS.name";
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(column -> "LOWER(" + column +") LIKE '%" + query.toLowerCase() + "%'")
+                .collect(Collectors.joining( " OR " ));
+
+        String sqlFilmRow = "SELECT *, mpa.NAME AS mpa_name FROM FILMS "+
+                "LEFT JOIN FILM_DIRECTORS on FILMS.FILM_ID = FILM_DIRECTORS.FILM_ID " +
+                "LEFT JOIN DIRECTORS ON FILM_DIRECTORS.DIRECTOR_ID = DIRECTORS.DIRECTOR_ID " +
+                "LEFT JOIN (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count FROM LIKES GROUP BY FILM_ID) " +
+                "AS likes_by_film ON likes_by_film.FILM_ID = FILMS.FILM_ID " +
+                "INNER JOIN mpa ON mpa.MPA_ID = FILMS.MPA_ID " +
+                "WHERE " + where +
+                " ORDER BY likes_by_film.likes_count DESC";
+        log.info("Запрос на получение по строке поиска {}, {}", query, by);
+        List<Film> films = jdbcTemplate.query(sqlFilmRow, FilmDaoImpl::mapRowToFilm);
+        log.info("Получаем по строке {}", films);
+        return films;
+    }
+
 
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
