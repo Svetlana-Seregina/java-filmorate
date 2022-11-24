@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.dao.Impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
-
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -40,5 +41,32 @@ public class LikeDaoImpl implements LikeDao {
 
         List<Film> listOfFilms = jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
         return listOfFilms;
+    }
+
+    @Override
+    public List<Long> getRecommendations(Long firstUserId) {
+        String sqlQuery = "SELECT user_id, count(*) as cnt FROM likes " +
+                "WHERE film_id IN (" +
+                "SELECT film_id  FROM films WHERE film_id IN (" +
+                "   SELECT film_id FROM likes WHERE user_id = ?))" +
+                "   AND user_id != ?" +
+                "GROUP BY user_id " +
+                "ORDER BY cnt DESC " +
+                "LIMIT 1";
+
+        Long secondUserId;
+        try {
+             secondUserId = jdbcTemplate.queryForObject(sqlQuery,(rs, rowNum) -> rs.getLong("user_id")
+                    , firstUserId, firstUserId);
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.emptyList();
+        }
+
+        sqlQuery = "SELECT FILM_ID  FROM FILMS " +
+                "WHERE FILM_ID IN (" +
+                "SELECT FILM_ID  FROM LIKES WHERE user_id = ? " +
+                "AND FILM_ID NOT IN (SELECT FILM_ID  FROM LIKES WHERE user_id = ?))";
+
+        return jdbcTemplate.query(sqlQuery,(rs, rowNum) -> rs.getLong("film_id"), secondUserId, firstUserId);
     }
 }
