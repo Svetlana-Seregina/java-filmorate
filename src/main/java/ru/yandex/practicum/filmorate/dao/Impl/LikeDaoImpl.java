@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.EventFeedDao;
 import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collections;
@@ -14,19 +15,27 @@ import java.util.List;
 @Component
 @Slf4j
 public class LikeDaoImpl implements LikeDao {
-
+    private final EventFeedDao eventFeedDao;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public boolean addLikeToFilm(Long id, Long userId) {
+    public boolean addLikeToFilm(Long filmId, Long userId) {
         String sqlQuery = "INSERT INTO LIKES (USER_ID, FILM_ID) values (?, ?)";
-        return jdbcTemplate.update(sqlQuery, userId, id) > 0;
+        boolean isAddLike = jdbcTemplate.update(sqlQuery, userId, filmId) > 0;
+        if (isAddLike) {
+            eventFeedDao.addLikeEvent(userId, filmId);
+        }
+        return isAddLike;
     }
 
     @Override
     public boolean removeLikeFromFilm(Long filmId, Long userId) {
         String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
-        return jdbcTemplate.update(sqlQuery, filmId, userId) > 0;
+        boolean isRemoveLike = jdbcTemplate.update(sqlQuery, filmId, userId) > 0;
+        if (isRemoveLike){
+            eventFeedDao.removeLikeEvent(userId, filmId);
+        }
+        return isRemoveLike;
     }
 
     @Override
