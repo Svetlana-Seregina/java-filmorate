@@ -33,5 +33,4 @@ public class FriendsService {
     public void deleteFriendFromSetOfFriends(Long userId, Long friendId){
         friendsDao.deleteFriendFromSetOfFriends(userId, friendId);
     }
-
 }

@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.LikeService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.*;
+import java.util.List;
 
 @RequestMapping("/films")
 @RestController
@@ -21,7 +21,6 @@ public class FilmController {
     private final FilmService filmService;
     private final LikeService likeService;
 
-
     @GetMapping("/{id}")
     public Film findFilmById(@PathVariable Long id) {
         return filmService.getFilmById(id);
@@ -32,7 +31,6 @@ public class FilmController {
         log.debug("Обрабатываем запрос на создание фильма " + film);
         return filmService.createFilm(film);
     }
-
 
     @GetMapping
     public List<Film> findAll() {
@@ -75,10 +73,15 @@ public class FilmController {
     }
 
     @GetMapping("/director/{directorId}")
-    public List<Film> getFilmsByDirector(@PathVariable Long directorId, @RequestParam String sortBy){
+    public List<Film> getFilmsByDirector(@PathVariable Long directorId, @RequestParam String sortBy) {
         log.debug("Обрабатываем запрос на получение списка фильмов режиссера с id " + directorId +
                 " отсортированных по признаку " + sortBy);
         return filmService.getFilmsByDirector(directorId, sortBy);
     }
 
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
+        log.debug("Обрабатываем запрос на получение общих фильмов для пользователей " + userId + " и " + friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
 }

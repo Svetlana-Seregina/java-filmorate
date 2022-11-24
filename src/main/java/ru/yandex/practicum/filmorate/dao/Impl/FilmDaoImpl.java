@@ -132,7 +132,20 @@ public class FilmDaoImpl implements FilmDao {
             throw new EntityNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
         }
         return sortedFilms;
+    }
 
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String sqlQuery = "SELECT l1.film_id, f.name, f.description, f.release_date, " +
+                "f.duration, f.mpa_id, f.rate, mpa.name as mpa_name, likes_by_film.likes_count " +
+                "FROM likes as l1 " +
+                "JOIN (SELECT * FROM likes WHERE user_id = 2) AS l2 on l1.film_id = l2.film_id " +
+                "left join films as f on l1.film_id = f.film_id " +
+                "left join mpa on f.mpa_id = mpa.mpa_id " +
+                "LEFT JOIN (SELECT film_id, COUNT(film_id) AS likes_count FROM likes GROUP BY film_id) AS likes_by_film " +
+                "ON likes_by_film.film_id = f.film_id " +
+                "WHERE l1.USER_ID = 1 " +
+                "ORDER BY likes_by_film.likes_count DESC";
+        return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
     }
 
     @Override
