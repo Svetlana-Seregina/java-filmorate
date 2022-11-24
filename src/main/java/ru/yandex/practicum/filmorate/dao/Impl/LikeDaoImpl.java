@@ -7,10 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Component
@@ -31,10 +28,23 @@ public class LikeDaoImpl implements LikeDao {
         return jdbcTemplate.update(sqlQuery, filmId, userId) > 0;
     }
 
-    @Override
-    public List<Film> findPopularFilms(Integer count, Long genreId, Date year) {
-        return Collections.emptyList();
-    }
 
+    @Override
+    public List<Film> findPopularsFilmsByGenreOrAndYear(Integer count, Long genreId, Integer year) {
+        String sqlQuery =
+                " SELECT *, mpa.NAME AS mpa_name FROM FILMS AS f " +
+                " LEFT JOIN " +
+                "    (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count " +
+                "     FROM LIKES " +
+                "     GROUP BY FILM_ID " +
+                "     ) AS likes_by_film ON likes_by_film.FILM_ID = f.FILM_ID " +
+                " INNER JOIN mpa ON mpa.MPA_ID = f.MPA_ID " +
+                (genreId != null ? " INNER JOIN FILM_GENRE FG on FG.FILM_ID = f.FILM_ID AND fg.GENRE_ID = " + genreId : "") +
+                (year != null ? " WHERE (EXTRACT(YEAR FROM RELEASE_DATE)) = " + year : "") +
+                " ORDER BY likes_by_film.likes_count DESC " +
+                " LIMIT " + count;
+        List<Film> listOfFilms = jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
+        return listOfFilms;
+    }
 
 }
