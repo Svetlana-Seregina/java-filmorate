@@ -14,11 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
+
     private final FilmDao filmDao;
     private final GenreDao genreDao;
-
     private final DirectorDao directorDao;
-
 
     public List<Film> findAll() {
         List<Film> allFilms = filmDao.findAll();
@@ -57,7 +56,6 @@ public class FilmService {
        log.info("Получены фильмы {}", filmsList);
        return filmsList;
     }
-
 
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         List<Film> filmsByDirector = filmDao.getFilmsByDirector(directorId, sortBy);

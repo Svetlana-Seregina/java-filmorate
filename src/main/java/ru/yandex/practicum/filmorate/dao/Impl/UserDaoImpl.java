@@ -78,7 +78,7 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
     }
 
     @Override
-    public boolean deleteUser(long userId) {
+    public boolean deleteUser(Long userId) {
         String sqlQuery = "DELETE FROM users WHERE user_id = ?";
         return jdbcTemplate.update(sqlQuery, userId) > 0;
     }

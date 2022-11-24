@@ -28,7 +28,7 @@ public class UserService {
         return userDao.findUserById(userId);
     }
 
-    public boolean deleteUser(long userId) {
+    public boolean deleteUser(Long userId) {
         return userDao.deleteUser(userId);
     }
 }

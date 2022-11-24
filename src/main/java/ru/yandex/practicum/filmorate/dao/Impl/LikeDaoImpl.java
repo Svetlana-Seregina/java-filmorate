@@ -54,7 +54,7 @@ public class LikeDaoImpl implements LikeDao {
                 "ORDER BY cnt DESC " +
                 "LIMIT 1";
 
-        long secondUserId;
+        Long secondUserId;
         try {
              secondUserId = jdbcTemplate.queryForObject(sqlQuery,(rs, rowNum) -> rs.getLong("user_id")
                     , firstUserId, firstUserId);
