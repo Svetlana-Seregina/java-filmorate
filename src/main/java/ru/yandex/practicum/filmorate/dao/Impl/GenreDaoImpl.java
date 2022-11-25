@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class GenreDaoImpl implements GenreDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override

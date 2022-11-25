@@ -19,7 +19,6 @@ import java.util.*;
 @Repository
 @Slf4j
 public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired

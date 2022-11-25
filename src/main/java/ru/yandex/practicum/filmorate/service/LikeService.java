@@ -20,6 +20,7 @@ public class LikeService {
     private final GenreDao genreDao;
     private final LikeDao likeDao;
     private final DirectorDao directorDao;
+    private final EventFeedService eventFeedService;
     private final FilmService filmService;
 
     public List<Film> findPopularsFilmsByGenreOrAndYear(Integer count, Long genreId, Integer year) {
@@ -31,13 +32,19 @@ public class LikeService {
     }
 
 
-    public boolean addLikeToFilm(Long id, Long userId){
-        return likeDao.addLikeToFilm(id, userId);
+    public boolean addLikeToFilm(Long filmId, Long userId){
+        boolean isAddLike = likeDao.addLikeToFilm(filmId, userId);
+        if (isAddLike) {
+            eventFeedService.addLikeEvent(userId, filmId);
+        }
+        return isAddLike;
     }
 
-    public void removeLikeFromFilm(Long id, Long userId){
-        if (!likeDao.removeLikeFromFilm(id, userId)) {
-            throw new EntityNotFoundException("Нет лайков у фильма " + id);
+    public void removeLikeFromFilm(Long filmId, Long userId){
+        if (likeDao.removeLikeFromFilm(filmId, userId)) {
+            eventFeedService.removeLikeEvent(userId, filmId);
+        } else {
+            throw new EntityNotFoundException("Нет лайков у фильма " + filmId);
         }
     }
 

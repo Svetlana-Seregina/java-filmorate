@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -17,13 +16,12 @@ import java.util.List;
 @Component
 @Slf4j
 public class LikeDaoImpl implements LikeDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public boolean addLikeToFilm(Long id, Long userId) {
+    public boolean addLikeToFilm(Long filmId, Long userId) {
         String sqlQuery = "INSERT INTO LIKES (USER_ID, FILM_ID) values (?, ?)";
-        return jdbcTemplate.update(sqlQuery, userId, id) > 0;
+        return jdbcTemplate.update(sqlQuery, userId, filmId) > 0;
     }
 
     @Override
