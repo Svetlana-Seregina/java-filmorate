@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class MpaDaoImpl implements MpaDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override

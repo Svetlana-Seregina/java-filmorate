@@ -1,24 +1,19 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import javax.validation.ConstraintViolationException;
-import java.util.*;
+import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class FriendsDaoImpl implements FriendsDao {
-
     private final JdbcTemplate jdbcTemplate;
-
-    public FriendsDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<User> getSetOfFriends(Long userId) {

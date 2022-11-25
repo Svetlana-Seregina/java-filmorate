@@ -17,20 +17,30 @@ public class ReviewService {
     private final ReviewLikeDao reviewLikeDao;
     private final UserService userService;
     private final FilmService filmService;
+    private final EventFeedService eventFeedService;
 
     public Review createReview(Review review) {
         //делаю поиск пользователя или фильма, если их нет, то соответствующие методы выбросят исключение
         userService.findUserById(review.getUserId());
         filmService.getFilmById(review.getFilmId());
-        return reviewDao.createReview(review);
+        Review createdReview = reviewDao.createReview(review);
+        eventFeedService.addReviewEvent(createdReview.getUserId(), createdReview.getReviewId());
+        return createdReview;
     }
 
     public Review updateReview(Review review) {
-        return reviewDao.updateReview(review);
+        Review updatedReview = reviewDao.updateReview(review);
+        eventFeedService.updateReviewEvent(updatedReview.getUserId(), updatedReview.getReviewId());
+        return updatedReview;
     }
 
     public boolean removeReview(long reviewId) {
-        return reviewDao.deleteReview(reviewId);
+        Long userId = getReviewById(reviewId).getUserId();
+        boolean isRemoveReview = reviewDao.deleteReview(reviewId);
+        if (isRemoveReview) {
+            eventFeedService.removeReviewEvent(userId, reviewId);
+        }
+        return isRemoveReview;
     }
 
     public Review getReviewById(long reviewId) {
