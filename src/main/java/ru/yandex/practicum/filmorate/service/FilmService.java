@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.DirectorDao;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.dao.FilmDao;
 
 import java.util.List;
 
@@ -14,10 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
+
     private final FilmDao filmDao;
     private final GenreDao genreDao;
     private final DirectorDao directorDao;
-
 
     public List<Film> findAll() {
         List<Film> allFilms = filmDao.findAll();
@@ -57,11 +57,14 @@ public class FilmService {
        return filmsList;
     }
 
-
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         List<Film> filmsByDirector = filmDao.getFilmsByDirector(directorId, sortBy);
         genreDao.loadFilmsGenres(filmsByDirector);
         directorDao.loadFilmsDirectors(filmsByDirector);
         return filmsByDirector;
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmDao.getCommonFilms(userId, friendId);
     }
 }
