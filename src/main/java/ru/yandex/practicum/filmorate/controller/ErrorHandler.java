@@ -28,13 +28,13 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
-        log.info("Ошибка валидации полей объекта: " + e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        log.info("Ошибка валидации полей объекта: " + e.getFieldError().getDefaultMessage());
+        return new ResponseEntity<>(e.getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleEntityNotFoundException(final EntityNotFoundException e) {
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
         log.info("Запрашиваемый объект не найден: " + e.getMessage());
         return new ErrorResponse(e.getMessage());
     }

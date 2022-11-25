@@ -18,4 +18,6 @@ public interface FilmDao {
     List<Film> searchFilmsBySubstring(String query, String by);
 
     List<Film> getFilmsByDirector(Long directorId, String sortBy);
+
+    List<Film> getCommonFilms(Long userId, Long friendId);
 }

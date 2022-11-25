@@ -10,5 +10,6 @@ public interface UserDao {
     User createUser(User user);
     User updateUser(User user);
     Collection<User> findAllUsers();
+    boolean deleteUser(Long userId);
 
 }
