@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dao.EventFeedDao;
 import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,14 +11,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class FriendsDaoImpl implements FriendsDao {
-    private final EventFeedDao eventFeedDao;
     private final JdbcTemplate jdbcTemplate;
-
-    public FriendsDaoImpl(JdbcTemplate jdbcTemplate, EventFeedDao eventFeedDao) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.eventFeedDao = eventFeedDao;
-    }
 
     @Override
     public List<User> getSetOfFriends(Long userId) {
@@ -39,11 +34,7 @@ public class FriendsDaoImpl implements FriendsDao {
     public boolean addFriendToSetOfFriends(Long userId, Long friendId) {
         try {
             String sqlQuery = "INSERT into FRIEND (USER_ID, FRIEND_ID) values (?,?)";
-            boolean isAddFriend = jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
-            if (isAddFriend){
-                eventFeedDao.addFriendEvent(userId, friendId);
-            }
-            return isAddFriend;
+            return jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
         } catch (DataIntegrityViolationException e) {
             throw new EntityNotFoundException("id пользователя не найдено в базе.");
         }
@@ -52,10 +43,6 @@ public class FriendsDaoImpl implements FriendsDao {
     @Override
     public boolean deleteFriendFromSetOfFriends(Long userId, Long friendId) {
         String sqlQuery = "delete from FRIEND where USER_ID = ? and FRIEND_ID = ?";
-        boolean isDeleteFriend = jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
-        if (isDeleteFriend){
-            eventFeedDao.removeFriendEvent(userId, friendId);
-        }
-        return isDeleteFriend;
+        return jdbcTemplate.update(sqlQuery, userId, friendId) > 0;
     }
 }

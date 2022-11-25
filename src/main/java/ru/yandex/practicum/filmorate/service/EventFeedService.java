@@ -17,4 +17,33 @@ public class EventFeedService {
     public List<Event> getAllEventFeed(Long id){
         return eventFeedDao.getAllEventFeed(id);
     }
+
+    public void addLikeEvent(Long userId, Long entity_id) {
+        eventFeedDao.addLikeEvent(userId, entity_id);
+    }
+
+
+    public void removeLikeEvent(Long userId, Long entity_id) {
+        eventFeedDao.removeLikeEvent(userId, entity_id);
+    }
+
+    public void addFriendEvent(Long userId, Long entity_id) {
+        eventFeedDao.addFriendEvent(userId, entity_id);
+    }
+
+    public void removeFriendEvent(Long userId, Long entity_id) {
+        eventFeedDao.removeFriendEvent(userId, entity_id);
+    }
+
+    public void addReviewEvent(Long userId, Long entity_id) {
+        eventFeedDao.addReviewEvent(userId, entity_id);
+    }
+
+    public void removeReviewEvent(Long userId, Long entity_id) {
+        eventFeedDao.removeReviewEvent(userId, entity_id);
+    }
+
+    public void updateReviewEvent(Long userId, Long entity_id) {
+        eventFeedDao.updateReviewEvent(userId, entity_id);
+    }
 }

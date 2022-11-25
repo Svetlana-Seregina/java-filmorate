@@ -7,10 +7,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.EventFeedDao;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +22,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class ReviewDaoImpl implements ReviewDao {
-    private final EventFeedDao eventFeedDao;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -31,20 +30,16 @@ public class ReviewDaoImpl implements ReviewDao {
                 " values (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        boolean isCreateReview = jdbcTemplate.update(connection -> {
+        jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"review_id"});
             stmt.setString(1, review.getContent());
             stmt.setLong(2, review.getUserId());
             stmt.setLong(3, review.getFilmId());
             stmt.setBoolean(4, review.getIsPositive());
             return stmt;
-        }, keyHolder) > 0;
+        }, keyHolder);
 
         long reviewId = Objects.requireNonNull(keyHolder.getKey()).longValue();
-
-        if (isCreateReview) {
-            eventFeedDao.addReviewEvent(review.getUserId(), reviewId);
-        }
 
         review.setReviewId(reviewId);
         review.setUseful(0L);
@@ -53,10 +48,9 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public Review updateReview(Review review) {
-        Long userId = getReviewById(review.getReviewId()).getUserId();
         String sqlQuery = "UPDATE reviews SET " +
                 "content = ?, is_positive = ? WHERE review_id = ?";
-        Long reviewId = review.getReviewId();
+        long reviewId = review.getReviewId();
         int updatedRows = jdbcTemplate.update(sqlQuery
                 , review.getContent()
                 , review.getIsPositive()
@@ -64,22 +58,14 @@ public class ReviewDaoImpl implements ReviewDao {
 
         if (updatedRows == 0) {
             throw new EntityNotFoundException("Отзыв не найден, review id = " + reviewId);
-        } else {
-            eventFeedDao.updateReviewEvent(userId, reviewId);
         }
-        return review;
+        return getReviewById(reviewId);
     }
 
     @Override
     public boolean deleteReview(long reviewId) {
-        Long userId = getReviewById(reviewId).getUserId();
         String sqlQuery = "DELETE FROM reviews WHERE review_id = ?";
-        boolean isDeleteReview = jdbcTemplate.update(sqlQuery, reviewId) > 0;
-
-        if (isDeleteReview) {
-            eventFeedDao.removeReviewEvent(userId, reviewId);
-        }
-        return isDeleteReview;
+        return jdbcTemplate.update(sqlQuery, reviewId) > 0;
     }
 
     @Override

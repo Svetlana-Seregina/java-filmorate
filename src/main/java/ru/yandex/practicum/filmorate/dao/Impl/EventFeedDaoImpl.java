@@ -17,15 +17,12 @@ import java.util.List;
 @Component
 @Slf4j
 public class EventFeedDaoImpl implements EventFeedDao {
-    private static final String EVENT_QUERY = "INSERT INTO feed (user_id, entity_id, event_type, operation, " +
-            "timestamp) VALUES (?, ?, ?, ?, ?)";
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Event> getAllEventFeed(Long id) {
         String getAllEventFeed = "SELECT * FROM feed WHERE user_id = ?";
-        return jdbcTemplate.query(getAllEventFeed, EventFeedDaoImpl::mapRowToEvent, id);
+        return jdbcTemplate.query(getAllEventFeed, this::mapRowToEvent, id);
     }
 
     @Override
@@ -64,11 +61,13 @@ public class EventFeedDaoImpl implements EventFeedDao {
     }
 
     private void insertEvent(Long userId, Long entity_id, String eventType, String operation){
-        jdbcTemplate.update(EVENT_QUERY, userId, entity_id, eventType, operation,
+        String insertEvent = "INSERT INTO feed (user_id, entity_id, event_type, operation, " +
+                "timestamp) VALUES (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(insertEvent, userId, entity_id, eventType, operation,
                 Timestamp.valueOf(LocalDateTime.now()));
     }
 
-    private static Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
+    private Event mapRowToEvent(ResultSet resultSet, int rowNum) throws SQLException {
         return Event.builder()
                 .eventId(resultSet.getLong("event_id"))
                 .userId(resultSet.getLong("user_id"))
