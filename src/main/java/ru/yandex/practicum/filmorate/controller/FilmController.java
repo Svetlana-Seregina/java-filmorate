@@ -38,10 +38,17 @@ public class FilmController {
         return filmService.findAll();
     }
 
+
+    // GET /films/popular?count={limit}&genreId={genreId}&year={year}
     @GetMapping("/popular")
-    public List<Film> findPopularsFilms(@Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
-        log.info("Получен запрос к эндпоинту на получение фильмов: count = " + count + " {}", likeService.findPopularFilms(count));
-        return likeService.findPopularFilms(count);
+    public List<Film> findPopularsFilmsByGenreOrAndYear
+            (@Positive @RequestParam(value = "count", defaultValue = "10", required = false) Integer count,
+             @RequestParam(value = "genreId", required = false) Long genreId,
+             @RequestParam (value = "year", required = false) Integer year) {
+
+        log.info("Получен запрос к эндпоинту на получение фильмов: count = {}, жанр id = {}, год = {} "
+                , count, genreId, year);
+        return likeService.findPopularsFilmsByGenreOrAndYear(count, genreId, year);
     }
 
     @PutMapping
