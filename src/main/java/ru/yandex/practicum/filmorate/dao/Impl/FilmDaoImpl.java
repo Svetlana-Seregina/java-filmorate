@@ -107,11 +107,12 @@ public class FilmDaoImpl implements FilmDao {
         String sqlQuery;
         if (sortBy.equals("year")) {
             sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, " +
+
                     "f.duration, f.rate, f.mpa_id, mpa.name AS mpa_name " +
                     "FROM film_directors " +
                     "LEFT JOIN films AS f ON film_directors.film_id = f.film_id " +
                     "LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id " +
-                    "WHERE director_id = ?" +
+                    "WHERE director_id = ? " +
                     "ORDER BY release_date";
         } else if (sortBy.equals("likes")) {
             sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, " +
@@ -121,7 +122,7 @@ public class FilmDaoImpl implements FilmDao {
                     "LEFT JOIN (SELECT film_id, COUNT(film_id) AS likes_count " +
                     "FROM likes GROUP BY film_id) AS likes_by_film ON likes_by_film.film_id = f.film_id " +
                     "LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id " +
-                    "WHERE director_id = ?" +
+                    "WHERE director_id = ? " +
                     "ORDER BY likes_by_film.likes_count DESC";
         } else {
             log.debug("Такая сортировка не поддерживается");
@@ -138,14 +139,14 @@ public class FilmDaoImpl implements FilmDao {
         String sqlQuery = "SELECT l1.film_id, f.name, f.description, f.release_date, " +
                 "f.duration, f.mpa_id, f.rate, mpa.name as mpa_name, likes_by_film.likes_count " +
                 "FROM likes as l1 " +
-                "JOIN (SELECT * FROM likes WHERE user_id = 2) AS l2 on l1.film_id = l2.film_id " +
+                "JOIN (SELECT * FROM likes WHERE user_id = ?) AS l2 on l1.film_id = l2.film_id " +
                 "left join films as f on l1.film_id = f.film_id " +
                 "left join mpa on f.mpa_id = mpa.mpa_id " +
                 "LEFT JOIN (SELECT film_id, COUNT(film_id) AS likes_count FROM likes GROUP BY film_id) AS likes_by_film " +
                 "ON likes_by_film.film_id = f.film_id " +
-                "WHERE l1.USER_ID = 1 " +
+                "WHERE l1.USER_ID = ? " +
                 "ORDER BY likes_by_film.likes_count DESC";
-        return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
+        return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm, friendId, userId);
     }
 
     @Override
@@ -162,10 +163,10 @@ public class FilmDaoImpl implements FilmDao {
                 })
                 .filter(Objects::nonNull)
                 .distinct()
-                .map(column -> "LOWER(" + column +") LIKE '%" + query.toLowerCase() + "%'")
-                .collect(Collectors.joining( " OR " ));
+                .map(column -> "LOWER(" + column + ") LIKE '%" + query.toLowerCase() + "%'")
+                .collect(Collectors.joining(" OR "));
 
-        String sqlFilmRow = "SELECT *, mpa.NAME AS mpa_name FROM FILMS "+
+        String sqlFilmRow = "SELECT *, mpa.NAME AS mpa_name FROM FILMS " +
                 "LEFT JOIN FILM_DIRECTORS on FILMS.FILM_ID = FILM_DIRECTORS.FILM_ID " +
                 "LEFT JOIN DIRECTORS ON FILM_DIRECTORS.DIRECTOR_ID = DIRECTORS.DIRECTOR_ID " +
                 "LEFT JOIN (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count FROM LIKES GROUP BY FILM_ID) " +
