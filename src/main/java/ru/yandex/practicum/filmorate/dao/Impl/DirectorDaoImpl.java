@@ -46,7 +46,7 @@ public class DirectorDaoImpl implements DirectorDao {
                 director.getName(),
                 director.getId());
         if (updatedRows == 0) {
-            throw new EntityNotFoundException(String.format("Режиссер с id=%d не найден.", director.getId()));
+            throw new EntityNotFoundException(String.format("Режиссер с id=%d не найден", director.getId()));
         }
         return director;
     }
@@ -57,7 +57,7 @@ public class DirectorDaoImpl implements DirectorDao {
             String sqlDirector = "SELECT * FROM directors WHERE director_id = ?";
             return jdbcTemplate.queryForObject(sqlDirector, this::directorRowToDirector, directorId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Режиссер с id=%d не найден.", directorId));
+            throw new EntityNotFoundException(String.format("Режиссер с id=%d не найден", directorId));
         }
     }
 

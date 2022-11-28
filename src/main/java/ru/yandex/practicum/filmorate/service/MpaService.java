@@ -16,13 +16,12 @@ public class MpaService {
     private final MpaDao mpaDao;
 
     public Mpa findMpaById(Long id) {
-        log.info("Запрос на mpa_id = " + id);
+        log.info("F10-1. Получение рейтинга MPA по id");
         return mpaDao.findMpaById(id);
     }
 
     public List<Mpa> findAllMpa() {
-        log.info("Список всех MPA: " + mpaDao.findAllMpa());
+        log.info("F10-2. Получение всех рейтингов MPA");
         return mpaDao.findAllMpa();
     }
-
 }

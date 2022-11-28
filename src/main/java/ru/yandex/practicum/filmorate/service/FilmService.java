@@ -20,6 +20,7 @@ public class FilmService {
     private final DirectorDao directorDao;
 
     public List<Film> findAll() {
+        log.info("F2-5. Получение всех фильмов");
         List<Film> allFilms = filmDao.findAll();
         genreDao.loadFilmsGenres(allFilms);
         directorDao.loadFilmsDirectors(allFilms);
@@ -27,6 +28,7 @@ public class FilmService {
     }
 
     public Film getFilmById(Long filmId) {
+        log.info("F2-1. Получение фильма по id");
         Film film = filmDao.getFilmById(filmId);
         genreDao.addGenresToFilm(film);
         directorDao.addDirectorsToFilm(film);
@@ -34,30 +36,34 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
+        log.info("F2-2. Создание фильма");
         filmDao.createFilm(film);
         directorDao.updateFilmDirectors(film);
         return genreDao.updateFilmGenres(film);
     }
 
     public Film updateFilm(Film film) {
+        log.info("F2-4. Обновление фильма");
         filmDao.updateFilm(film);
         directorDao.updateFilmDirectors(film);
         return genreDao.updateFilmGenres(film);
     }
 
     public boolean deleteFilm(Long filmId) {
+        log.info("F2-3. Удаление фильма");
         return filmDao.deleteFilm(filmId);
     }
 
-   public List<Film> searchFilmsBySubstring(String query, String by) {
-       log.info("Запрос на получение фильма по подстроке поиска = {}, среди = {}", query, by);
-       List<Film> filmsList = filmDao.searchFilmsBySubstring(query, by);
-       genreDao.loadFilmsGenres(filmsList);
-       directorDao.loadFilmsDirectors(filmsList);
-       return filmsList;
+    public List<Film> searchFilmsBySubstring(String query, String by) {
+        log.info("F2-6. Получение фильма по подстроке поиска");
+        List<Film> filmsList = filmDao.searchFilmsBySubstring(query, by);
+        genreDao.loadFilmsGenres(filmsList);
+        directorDao.loadFilmsDirectors(filmsList);
+        return filmsList;
     }
 
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        log.info("F2-7. Получение фильмов режиссера");
         List<Film> filmsByDirector = filmDao.getFilmsByDirector(directorId, sortBy);
         genreDao.loadFilmsGenres(filmsByDirector);
         directorDao.loadFilmsDirectors(filmsByDirector);
@@ -65,6 +71,7 @@ public class FilmService {
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
+        log.info("F2-8. Получение общих фильмов для двух пользователей");
         return filmDao.getCommonFilms(userId, friendId);
     }
 }

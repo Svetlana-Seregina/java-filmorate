@@ -14,13 +14,12 @@ public class GenreService {
     private final GenreDao genreDao;
 
     public Genre findGenreById(Long id) {
-        log.info("Запрос на genre_id = " + id);
+        log.info("F6-1. Получение жанра по id");
         return genreDao.findGenreById(id);
     }
 
     public List<Genre> findAllGenre() {
-        log.info("Список всех жанров: " + genreDao.findAllGenre());
+        log.info("F6-2. Получение всех жанров");
         return genreDao.findAllGenre();
     }
-
 }
