@@ -21,10 +21,14 @@ import java.util.stream.Collectors;
 public class GenreDaoImpl implements GenreDao {
     private final JdbcTemplate jdbcTemplate;
 
+    private static final String SELECT_GENRE_ID_AND_NAME = "g.genre_id, g.name " +
+            "FROM film_genre AS fg " +
+            "INNER JOIN genres AS g ON g.genre_id = fg.genre_id ";
+
     @Override
     public Genre findGenreById(Long id) {
         try {
-            String sqlGenre = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
+            String sqlGenre = "SELECT * FROM genres WHERE genre_id = ?";
             return jdbcTemplate.queryForObject(sqlGenre, GenreDaoImpl::genreRowToGenre, id);
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException("genre_id не может быть меньше нуля = " + id);
@@ -33,14 +37,12 @@ public class GenreDaoImpl implements GenreDao {
 
     @Override
     public List<Genre> findAllGenre() {
-        return jdbcTemplate.query("SELECT * FROM GENRES", GenreDaoImpl::genreRowToGenre);
+        return jdbcTemplate.query("SELECT * FROM genres", GenreDaoImpl::genreRowToGenre);
     }
 
     @Override
     public void addGenresToFilm(Film film) {
-        String sqlSelectFilmGenres = "SELECT g.genre_id, g.name " +
-                "FROM film_genre " +
-                "INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id " +
+        String sqlSelectFilmGenres = "SELECT " + SELECT_GENRE_ID_AND_NAME +
                 "WHERE film_id = ?";
         List<Genre> genres = jdbcTemplate.query(sqlSelectFilmGenres,
                 GenreDaoImpl::genreRowToGenre, film.getId());
@@ -48,7 +50,6 @@ public class GenreDaoImpl implements GenreDao {
     }
 
     public void loadFilmsGenres(List<Film> films) {
-
         if (films.size() == 0) {
             return;
         }
@@ -59,8 +60,7 @@ public class GenreDaoImpl implements GenreDao {
                 .map(f -> f.getId().toString())
                 .collect(Collectors.toList());
 
-        jdbcTemplate.query("SELECT film_id, g.genre_id, g.name FROM FILM_GENRE " +
-                        "INNER JOIN genres AS g ON g.genre_id = film_genre.genre_id " +
+        jdbcTemplate.query("SELECT film_id, " + SELECT_GENRE_ID_AND_NAME +
                         "WHERE film_id IN (" + String.join(",", filmIds) + ")",
                 (rs, rowNum) -> {
                     long filmId = rs.getLong("film_id");
@@ -88,7 +88,7 @@ public class GenreDaoImpl implements GenreDao {
         List<Object[]> args = filmGenres.stream()
                 .map(genre -> new Object[]{filmId, genre.getId()})
                 .collect(Collectors.toList());
-        jdbcTemplate.batchUpdate("INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) values (?, ?)", args);
+        jdbcTemplate.batchUpdate("INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)", args);
 
         film.setGenres(filmGenres);
         return film;
@@ -96,7 +96,7 @@ public class GenreDaoImpl implements GenreDao {
 
     @Override
     public void deleteFilmGenres(Film film) {
-        String sqlQuery = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
+        String sqlQuery = "DELETE FROM film_genre WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, film.getId());
     }
 
