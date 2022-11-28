@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.dao.Impl.*;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
 
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
