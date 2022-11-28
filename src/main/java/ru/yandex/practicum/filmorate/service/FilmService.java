@@ -53,7 +53,7 @@ public class FilmService {
        List<Film> filmsList = filmDao.searchFilmsBySubstring(query, by);
        genreDao.loadFilmsGenres(filmsList);
        directorDao.loadFilmsDirectors(filmsList);
-       log.info("Получены фильмы {}", filmsList);
+       log.info("На запрос по подстроке поиска получены фильмы {}", filmsList);
        return filmsList;
     }
 

@@ -174,9 +174,9 @@ public class FilmDaoImpl implements FilmDao {
                 "INNER JOIN mpa ON mpa.MPA_ID = FILMS.MPA_ID " +
                 "WHERE " + where +
                 " ORDER BY likes_by_film.likes_count DESC";
-        log.info("Запрос на получение по строке поиска {}, {}", query, by);
+        log.info("Запрос на получение фильма по подстроке поиска = {}, среди = {}", query, by);
         List<Film> films = jdbcTemplate.query(sqlFilmRow, FilmDaoImpl::mapRowToFilm);
-        log.info("Получаем по строке {}", films);
+        log.info("Получаем по подстроке {}", films);
         return films;
     }
 

@@ -25,9 +25,9 @@ public class LikeService {
 
     public List<Film> findPopularsFilmsByGenreOrAndYear(Integer count, Long genreId, Integer year) {
         List<Film> popularFilms = likeDao.findPopularsFilmsByGenreOrAndYear(count, genreId, year);
-        log.info(String.valueOf(popularFilms));
         genreDao.loadFilmsGenres(popularFilms);
         directorDao.loadFilmsDirectors(popularFilms);
+        log.info("На запрос поиска фильмов по жанру и году получили список = {}", popularFilms);
         return popularFilms;
     }
 
