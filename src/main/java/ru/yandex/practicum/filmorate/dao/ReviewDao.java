@@ -8,11 +8,11 @@ public interface ReviewDao {
 
     Review updateReview(Review review);
 
-    boolean deleteReview(long reviewId);
+    boolean deleteReview(Long reviewId);
 
     List<Review> getAllReviews();
 
-    Review getReviewById(long reviewId);
+    Review getReviewById(Long reviewId);
 
-    List<Review> getReviewsByFilmId(long filmId, Optional<Integer> count);
+    List<Review> getReviewsByFilmId(Long filmId, Optional<Integer> count);
 }
