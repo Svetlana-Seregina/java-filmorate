@@ -20,25 +20,31 @@ public class LikeService {
     private final GenreDao genreDao;
     private final LikeDao likeDao;
     private final DirectorDao directorDao;
+    private final EventFeedService eventFeedService;
     private final FilmService filmService;
 
 
     public List<Film> findPopularsFilmsByGenreOrAndYear(Integer count, Long genreId, Integer year) {
         List<Film> popularFilms = likeDao.findPopularsFilmsByGenreOrAndYear(count, genreId, year);
-        log.info(String.valueOf(popularFilms));
         genreDao.loadFilmsGenres(popularFilms);
         directorDao.loadFilmsDirectors(popularFilms);
+        log.info("На запрос поиска фильмов по жанру и году получили список = {}", popularFilms);
         return popularFilms;
     }
 
-
-    public boolean addLikeToFilm(Long id, Long userId){
-        return likeDao.addLikeToFilm(id, userId);
+    public boolean addLikeToFilm(Long filmId, Long userId){
+        boolean isAddLike = likeDao.addLikeToFilm(filmId, userId);
+        if (isAddLike) {
+            eventFeedService.addLikeEvent(userId, filmId);
+        }
+        return isAddLike;
     }
 
-    public void removeLikeFromFilm(Long id, Long userId){
-        if (!likeDao.removeLikeFromFilm(id, userId)) {
-            throw new EntityNotFoundException("Нет лайков у фильма " + id);
+    public void removeLikeFromFilm(Long filmId, Long userId){
+        if (likeDao.removeLikeFromFilm(filmId, userId)) {
+            eventFeedService.removeLikeEvent(userId, filmId);
+        } else {
+            throw new EntityNotFoundException("Нет лайков у фильма " + filmId);
         }
     }
 

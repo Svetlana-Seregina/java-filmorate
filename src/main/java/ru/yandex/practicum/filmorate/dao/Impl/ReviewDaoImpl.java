@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,19 +48,18 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public Review updateReview(Review review) {
-
         String sqlQuery = "UPDATE reviews SET " +
                 "content = ?, is_positive = ? WHERE review_id = ?";
-
+        long reviewId = review.getReviewId();
         int updatedRows = jdbcTemplate.update(sqlQuery
                 , review.getContent()
                 , review.getIsPositive()
-                , review.getReviewId());
+                , reviewId);
 
         if (updatedRows == 0) {
-            throw new EntityNotFoundException("Отзыв не найден, review id = " + review.getReviewId());
+            throw new EntityNotFoundException("Отзыв не найден, review id = " + reviewId);
         }
-        return review;
+        return getReviewById(reviewId);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ReviewDaoImpl implements ReviewDao {
                 "WHEN rl.islike IS NULL THEN 0 END) as rating FROM reviews r " +
                 "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
                 "GROUP BY r.review_id " +
-                "ORDER BY rating DESC";;
+                "ORDER BY rating DESC";
         List<Review> res = jdbcTemplate.query(sqlQuery, this::mapRowToReview);
         return res;
     }

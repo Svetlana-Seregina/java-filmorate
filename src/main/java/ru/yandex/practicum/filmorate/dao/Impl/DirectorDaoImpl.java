@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 @Repository
 @Slf4j
 public class DirectorDaoImpl implements DirectorDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
