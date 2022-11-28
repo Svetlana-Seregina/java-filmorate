@@ -31,7 +31,7 @@ public class LikeService {
         return popularFilms;
     }
 
-    public boolean addLikeToFilm(Long filmId, Long userId){
+    public boolean addLikeToFilm(Long filmId, Long userId) {
         log.info("F3-1. Добавление лайка фильму");
         boolean isAddLike = likeDao.addLikeToFilm(filmId, userId);
         if (isAddLike) {
@@ -40,16 +40,17 @@ public class LikeService {
         return isAddLike;
     }
 
-    public void removeLikeFromFilm(Long filmId, Long userId){
+    public void removeLikeFromFilm(Long filmId, Long userId) {
         log.info("F3-2. Удаление лайка у фильма");
         if (likeDao.removeLikeFromFilm(filmId, userId)) {
             eventFeedService.removeLikeEvent(userId, filmId);
         } else {
-            throw new EntityNotFoundException("Нет лайков у фильма " + filmId);
+            throw new EntityNotFoundException(
+                    String.format("Не найдена запись лайка фильму с id=%d от пользователя с id=%d", filmId, userId));
         }
     }
 
-    public List<Film> getRecommendations (Long userId) {
+    public List<Film> getRecommendations(Long userId) {
         log.info("F3-4. Получение рекомендации фильмов для пользователя");
         List<Film> films = new ArrayList<>();
         likeDao.getRecommendations(userId).forEach(t -> films.add(filmService.getFilmById(t)));
