@@ -63,7 +63,7 @@ public class ReviewDaoImpl implements ReviewDao {
     }
 
     @Override
-    public boolean deleteReview(long reviewId) {
+    public boolean deleteReview(Long reviewId) {
         String sqlQuery = "DELETE FROM reviews WHERE review_id = ?";
         return jdbcTemplate.update(sqlQuery, reviewId) > 0;
     }
@@ -81,7 +81,7 @@ public class ReviewDaoImpl implements ReviewDao {
     }
 
     @Override
-    public Review getReviewById(long reviewId) {
+    public Review getReviewById(Long reviewId) {
         String sqlFilmRow =" SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
                 "SUM (CASE WHEN rl.islike = true THEN 1 " +
                 "WHEN rl.islike = false THEN -1 " +
@@ -98,7 +98,7 @@ public class ReviewDaoImpl implements ReviewDao {
     }
 
     @Override
-    public List<Review> getReviewsByFilmId(long filmId, Optional<Integer> count) {
+    public List<Review> getReviewsByFilmId(Long filmId, Optional<Integer> count) {
         String sqlFilmRow = "SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
                 "SUM (CASE WHEN rl.islike = true THEN 1 " +
                 "WHEN rl.islike = false THEN -1 " +

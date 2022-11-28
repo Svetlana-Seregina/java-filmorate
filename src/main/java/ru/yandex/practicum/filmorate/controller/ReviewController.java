@@ -35,13 +35,13 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
-    public boolean removeReview(@Valid @PathVariable long reviewId) {
+    public boolean removeReview(@Valid @PathVariable Long reviewId) {
         log.info("Запрошено удаление отзыва с ID = " + reviewId);
         return reviewService.removeReview(reviewId);
     }
 
     @GetMapping("/{reviewId}")
-    public Review getReviewById(@Valid @PathVariable long reviewId) {
+    public Review getReviewById(@Valid @PathVariable Long reviewId) {
         return reviewService.getReviewById(reviewId);
     }
 
@@ -57,25 +57,25 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}/like/{userId}")
-    public boolean addLikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+    public boolean addLikeToReview(@PathVariable Long reviewId, @PathVariable Long userId) {
         log.info("Запрошено добавление лайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
         return reviewService.addLikeToReview(reviewId, userId);
     }
 
     @PutMapping("/{reviewId}/dislike/{userId}")
-    public boolean addDislikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+    public boolean addDislikeToReview(@PathVariable Long reviewId, @PathVariable Long userId) {
         log.info("Запрошено добавление дизлайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
         return reviewService.addDislikeToReview(reviewId, userId);
     }
 
     @DeleteMapping("/{reviewId}/like/{userId}")
-    public boolean RemoveLikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+    public boolean removeLikeToReview(@PathVariable Long reviewId, @PathVariable Long userId) {
         log.info("Запрошено удаление лайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
         return reviewService.removeLikeDislikeFromReview(reviewId, userId);
     }
 
     @DeleteMapping("/{reviewId}/dislike/{userId}")
-    public boolean RemoveDislikeToReview(@PathVariable long reviewId, @PathVariable long userId) {
+    public boolean removeDislikeToReview(@PathVariable Long reviewId, @PathVariable Long userId) {
         log.info("Запрошено удаление дизлайка для отзыва ID = " + reviewId + " от пользователя ID = " + userId);
         return reviewService.removeLikeDislikeFromReview(reviewId, userId);
     }
