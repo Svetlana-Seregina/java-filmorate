@@ -1,10 +1,9 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,11 +11,13 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component
-@Slf4j
+@Repository
 @RequiredArgsConstructor
 public class GenreDaoImpl implements GenreDao {
     private final JdbcTemplate jdbcTemplate;
@@ -31,7 +32,7 @@ public class GenreDaoImpl implements GenreDao {
             String sqlGenre = "SELECT * FROM genres WHERE genre_id = ?";
             return jdbcTemplate.queryForObject(sqlGenre, GenreDaoImpl::genreRowToGenre, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("genre_id не может быть меньше нуля = " + id);
+            throw new EntityNotFoundException("genre_id не может быть меньше нуля. Переданное значение = " + id);
         }
     }
 
@@ -106,6 +107,4 @@ public class GenreDaoImpl implements GenreDao {
                 .name(resultSet.getString("name"))
                 .build();
     }
-
-
 }

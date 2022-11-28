@@ -6,7 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
-@Component
+@Repository
 @RequiredArgsConstructor
 public class ReviewDaoImpl implements ReviewDao {
     private final JdbcTemplate jdbcTemplate;
@@ -65,7 +65,7 @@ public class ReviewDaoImpl implements ReviewDao {
                 , reviewId);
 
         if (updatedRows == 0) {
-            throw new EntityNotFoundException("Отзыв не найден, review id = " + reviewId);
+            throw new EntityNotFoundException(String.format("Отзыв с id=%d не найден", reviewId));
         }
         return getReviewById(reviewId);
     }
@@ -79,8 +79,7 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public List<Review> getAllReviews() {
         String sqlQuery = SELECT_REVIEW_BY_ID.replace("WHERE r.review_id = ? ", "");
-        List<Review> res = jdbcTemplate.query(sqlQuery, this::mapRowToReview);
-        return res;
+        return jdbcTemplate.query(sqlQuery, this::mapRowToReview);
     }
 
     @Override
@@ -88,7 +87,7 @@ public class ReviewDaoImpl implements ReviewDao {
         try {
             return jdbcTemplate.queryForObject(SELECT_REVIEW_BY_ID, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Отзыв с review_id=%d не найден", reviewId));
+            throw new EntityNotFoundException(String.format("Отзыв с id=%d не найден", reviewId));
         }
     }
 
@@ -105,7 +104,7 @@ public class ReviewDaoImpl implements ReviewDao {
                 return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId);
             }
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Отзыв для фильма film_id=%d не найден", filmId));
+            throw new EntityNotFoundException(String.format("Отзыв для фильма c id=%d не найден", filmId));
         }
     }
 

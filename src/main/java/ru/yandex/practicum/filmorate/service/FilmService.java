@@ -50,10 +50,10 @@ public class FilmService {
     }
 
    public List<Film> searchFilmsBySubstring(String query, String by) {
+       log.info("Запрос на получение фильма по подстроке поиска = {}, среди = {}", query, by);
        List<Film> filmsList = filmDao.searchFilmsBySubstring(query, by);
        genreDao.loadFilmsGenres(filmsList);
        directorDao.loadFilmsDirectors(filmsList);
-       log.info("На запрос по подстроке поиска получены фильмы {}", filmsList);
        return filmsList;
     }
 

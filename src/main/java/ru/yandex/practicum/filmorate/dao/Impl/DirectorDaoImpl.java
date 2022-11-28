@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,14 +20,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-@Slf4j
+@RequiredArgsConstructor
 public class DirectorDaoImpl implements DirectorDao {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public DirectorDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Director createDirector(Director director) {
@@ -52,7 +46,7 @@ public class DirectorDaoImpl implements DirectorDao {
                 director.getName(),
                 director.getId());
         if (updatedRows == 0) {
-            throw new EntityNotFoundException("Режиссер с id " + director.getId() + " не найден");
+            throw new EntityNotFoundException(String.format("Режиссер с id=%d не найден.", director.getId()));
         }
         return director;
     }
@@ -63,7 +57,7 @@ public class DirectorDaoImpl implements DirectorDao {
             String sqlDirector = "SELECT * FROM directors WHERE director_id = ?";
             return jdbcTemplate.queryForObject(sqlDirector, this::directorRowToDirector, directorId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Запрашиваемый режиссер с id=%d не найден.", directorId));
+            throw new EntityNotFoundException(String.format("Режиссер с id=%d не найден.", directorId));
         }
     }
 
