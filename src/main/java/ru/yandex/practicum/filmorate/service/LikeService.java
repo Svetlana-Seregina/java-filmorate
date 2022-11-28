@@ -23,7 +23,6 @@ public class LikeService {
     private final EventFeedService eventFeedService;
     private final FilmService filmService;
 
-
     public List<Film> findPopularsFilmsByGenreOrAndYear(Integer count, Long genreId, Integer year) {
         List<Film> popularFilms = likeDao.findPopularsFilmsByGenreOrAndYear(count, genreId, year);
         genreDao.loadFilmsGenres(popularFilms);
@@ -31,6 +30,7 @@ public class LikeService {
         log.info("На запрос поиска фильмов по жанру и году получили список = {}", popularFilms);
         return popularFilms;
     }
+
 
     public boolean addLikeToFilm(Long filmId, Long userId){
         boolean isAddLike = likeDao.addLikeToFilm(filmId, userId);
@@ -48,9 +48,11 @@ public class LikeService {
         }
     }
 
+
     public List<Film> getRecommendations (Long userId) {
         List<Film> films = new ArrayList<>();
         likeDao.getRecommendations(userId).forEach(t -> films.add(filmService.getFilmById(t)));
         return films;
     }
+
 }
