@@ -21,7 +21,7 @@ public class MpaDaoImpl implements MpaDao {
     @Override
     public Mpa findMpaById(Long id) {
         try {
-            String sqlMpa = "SELECT * FROM MPA WHERE MPA_ID = ?";
+            String sqlMpa = "SELECT * FROM mpa WHERE mpa_id = ?";
             return jdbcTemplate.queryForObject(sqlMpa, this::mpaRowToMpa, id);
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Запрашиваемый mpa_id меньше 0 или больше 5 = %d ", id));

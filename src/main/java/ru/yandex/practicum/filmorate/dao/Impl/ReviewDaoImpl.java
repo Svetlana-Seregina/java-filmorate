@@ -24,10 +24,19 @@ import java.util.Optional;
 public class ReviewDaoImpl implements ReviewDao {
     private final JdbcTemplate jdbcTemplate;
 
+    private static final String SELECT_REVIEW_BY_ID = "SELECT r.review_id, r.content, r.user_id, r.film_id, " +
+            "r.is_positive, " +
+            "SUM (CASE WHEN rl.islike = true THEN 1 " +
+            "WHEN rl.islike = false THEN -1 " +
+            "WHEN rl.islike IS NULL THEN 0 END) AS rating FROM reviews r " +
+            "LEFT JOIN review_likes rl ON r.review_id  = rl.review_id " +
+            "WHERE r.review_id = ? " +
+            "GROUP BY r.review_id " +
+            "ORDER BY rating DESC";
+
     @Override
     public Review createReview(Review review) {
-        String sqlQuery = "INSERT INTO reviews (content, user_id, film_id, is_positive)" +
-                " values (?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO reviews (content, user_id, film_id, is_positive) VALUES (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -48,8 +57,7 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public Review updateReview(Review review) {
-        String sqlQuery = "UPDATE reviews SET " +
-                "content = ?, is_positive = ? WHERE review_id = ?";
+        String sqlQuery = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
         long reviewId = review.getReviewId();
         int updatedRows = jdbcTemplate.update(sqlQuery
                 , review.getContent()
@@ -70,28 +78,15 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public List<Review> getAllReviews() {
-        String sqlQuery = " SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, SUM (CASE WHEN rl.islike = true THEN 1 " +
-                "WHEN rl.islike = false THEN -1 " +
-                "WHEN rl.islike IS NULL THEN 0 END) as rating FROM reviews r " +
-                "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
-                "GROUP BY r.review_id " +
-                "ORDER BY rating DESC";
+        String sqlQuery = SELECT_REVIEW_BY_ID.replace("WHERE r.review_id = ? ", "");
         List<Review> res = jdbcTemplate.query(sqlQuery, this::mapRowToReview);
         return res;
     }
 
     @Override
     public Review getReviewById(Long reviewId) {
-        String sqlFilmRow =" SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
-                "SUM (CASE WHEN rl.islike = true THEN 1 " +
-                "WHEN rl.islike = false THEN -1 " +
-                "WHEN rl.islike IS NULL THEN 0 END) as rating FROM reviews r " +
-                "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
-                "WHERE r.review_id = ? " +
-                "GROUP BY r.review_id " +
-                "ORDER BY rating DESC";
         try {
-            return jdbcTemplate.queryForObject(sqlFilmRow, this::mapRowToReview, reviewId);
+            return jdbcTemplate.queryForObject(SELECT_REVIEW_BY_ID, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(String.format("Отзыв с review_id=%d не найден", reviewId));
         }
@@ -99,15 +94,7 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public List<Review> getReviewsByFilmId(Long filmId, Optional<Integer> count) {
-        String sqlFilmRow = "SELECT r.review_id, r.content, r.user_id, r.film_id, r.is_positive, " +
-                "SUM (CASE WHEN rl.islike = true THEN 1 " +
-                "WHEN rl.islike = false THEN -1 " +
-                "WHEN rl.islike IS NULL THEN 0 END) as rating FROM reviews r " +
-                "LEFT JOIN REVIEW_LIKES rl ON r.REVIEW_ID  = rl.REVIEW_ID " +
-                "WHERE r.FILM_ID = ? " +
-                "GROUP BY r.review_id " +
-                "ORDER BY rating DESC ";
-
+        String sqlFilmRow = SELECT_REVIEW_BY_ID.replace("r.review_id = ?", "r.film_id = ?");
         if (count.isPresent()) {
             sqlFilmRow = sqlFilmRow + " LIMIT ?";
         }
@@ -118,7 +105,7 @@ public class ReviewDaoImpl implements ReviewDao {
                 return jdbcTemplate.query(sqlFilmRow, this::mapRowToReview, filmId);
             }
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Отзыв для фильма filmd_id=%d не найден", filmId));
+            throw new EntityNotFoundException(String.format("Отзыв для фильма film_id=%d не найден", filmId));
         }
     }
 

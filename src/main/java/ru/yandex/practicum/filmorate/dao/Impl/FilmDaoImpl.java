@@ -21,7 +21,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
-
+    private static final String SELECT_FILM_FIELDS_BY_DIRECTOR = " f.film_id, f.name, f.description, f.release_date, " +
+            "f.duration, f.rate, f.mpa_id, mpa.name AS mpa_name " +
+            "FROM film_directors AS fd " +
+            "LEFT JOIN films AS f ON fd.film_id = f.film_id ";
+    private static final String LEFT_JOIN_LIKES_BY_FILM_ON_FILM_ID = "LEFT JOIN (SELECT film_id, COUNT(film_id) " +
+            "AS likes_count " +
+            "FROM likes GROUP BY film_id) AS likes_by_film " +
+            "ON likes_by_film.film_id = f.film_id ";
     @Autowired
     public FilmDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -29,8 +36,8 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public Film getFilmById(Long filmId) {
-        String sqlFilmRow = "SELECT *, mpa.NAME as mpa_name FROM FILMS " +
-                "INNER JOIN mpa ON mpa.MPA_ID = films.MPA_ID WHERE FILM_ID = ?";
+        String sqlFilmRow = "SELECT *, mpa.name as mpa_name FROM films " +
+                "INNER JOIN mpa ON mpa.mpa_id = films.mpa_id WHERE film_id = ?";
         Film film;
         try {
             film = jdbcTemplate.queryForObject(sqlFilmRow, FilmDaoImpl::mapRowToFilm, filmId);
@@ -42,7 +49,7 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public Film createFilm(Film film) {
-        String sqlQuery = "INSERT INTO FILMS(NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA_ID) " +
+        String sqlQuery = "INSERT INTO films(name, description, release_date, duration, rate, mpa_id) " +
                 "values (?, ?, ?, ?, ?, ?)";
         //В тестах PostMan для создания режиссера нет поля рейтинг, поэтому добавил проверку на пустое значение
         if (film.getRate() == null) {
@@ -68,14 +75,14 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public boolean deleteFilm(Long filmId) {
-        String sqlQuery = "DELETE FROM FILMS WHERE FILM_ID = ?";
+        String sqlQuery = "DELETE FROM films WHERE film_id = ?";
         return jdbcTemplate.update(sqlQuery, filmId) > 0;
     }
 
 
     @Override
     public void updateFilm(Film film) {
-        String sqlQuery = "UPDATE FILMS SET " +
+        String sqlQuery = "UPDATE films SET " +
                 "name = ?, description = ?, release_date = ?, duration = ?, rate = ?, mpa_id = ? WHERE film_id = ?";
 
         int updatedRows = jdbcTemplate.update(sqlQuery
@@ -95,9 +102,9 @@ public class FilmDaoImpl implements FilmDao {
     @Override
     public List<Film> findAll() {
         String sqlQuery = "SELECT film_id, films.name, description, release_date, duration, rate, " +
-                "films.mpa_id, mpa.NAME AS mpa_name" +
-                " FROM films" +
-                " INNER JOIN mpa ON mpa.MPA_ID = films.MPA_ID";
+                "films.mpa_id, mpa.name AS mpa_name " +
+                "FROM films " +
+                "INNER JOIN mpa ON mpa.mpa_id = films.mpa_id";
 
         return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
     }
@@ -106,21 +113,12 @@ public class FilmDaoImpl implements FilmDao {
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         String sqlQuery;
         if (sortBy.equals("year")) {
-            sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, " +
-
-                    "f.duration, f.rate, f.mpa_id, mpa.name AS mpa_name " +
-                    "FROM film_directors " +
-                    "LEFT JOIN films AS f ON film_directors.film_id = f.film_id " +
+            sqlQuery = "SELECT " + SELECT_FILM_FIELDS_BY_DIRECTOR +
                     "LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id " +
                     "WHERE director_id = ? " +
                     "ORDER BY release_date";
         } else if (sortBy.equals("likes")) {
-            sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, " +
-                    "f.duration, f.rate, f.mpa_id, mpa.name AS mpa_name, likes_by_film.likes_count " +
-                    "FROM film_directors " +
-                    "LEFT JOIN films AS f ON film_directors.film_id = f.film_id " +
-                    "LEFT JOIN (SELECT film_id, COUNT(film_id) AS likes_count " +
-                    "FROM likes GROUP BY film_id) AS likes_by_film ON likes_by_film.film_id = f.film_id " +
+            sqlQuery = "SELECT" + insertLikesCountField() + LEFT_JOIN_LIKES_BY_FILM_ON_FILM_ID +
                     "LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id " +
                     "WHERE director_id = ? " +
                     "ORDER BY likes_by_film.likes_count DESC";
@@ -142,8 +140,7 @@ public class FilmDaoImpl implements FilmDao {
                 "JOIN (SELECT * FROM likes WHERE user_id = ?) AS l2 on l1.film_id = l2.film_id " +
                 "left join films as f on l1.film_id = f.film_id " +
                 "left join mpa on f.mpa_id = mpa.mpa_id " +
-                "LEFT JOIN (SELECT film_id, COUNT(film_id) AS likes_count FROM likes GROUP BY film_id) AS likes_by_film " +
-                "ON likes_by_film.film_id = f.film_id " +
+                LEFT_JOIN_LIKES_BY_FILM_ON_FILM_ID +
                 "WHERE l1.USER_ID = ? " +
                 "ORDER BY likes_by_film.likes_count DESC";
         return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm, friendId, userId);
@@ -155,9 +152,9 @@ public class FilmDaoImpl implements FilmDao {
         String where = Arrays.stream(by.split(","))
                 .map(searchBy -> {
                     if (searchBy.equals("director")) {
-                        return "DIRECTORS.name";
+                        return "d.name";
                     } else if (searchBy.equals("title")) {
-                        return "FILMS.name";
+                        return "f.name";
                     }
                     return null;
                 })
@@ -166,12 +163,11 @@ public class FilmDaoImpl implements FilmDao {
                 .map(column -> "LOWER(" + column + ") LIKE '%" + query.toLowerCase() + "%'")
                 .collect(Collectors.joining(" OR "));
 
-        String sqlFilmRow = "SELECT *, mpa.NAME AS mpa_name FROM FILMS " +
-                "LEFT JOIN FILM_DIRECTORS on FILMS.FILM_ID = FILM_DIRECTORS.FILM_ID " +
-                "LEFT JOIN DIRECTORS ON FILM_DIRECTORS.DIRECTOR_ID = DIRECTORS.DIRECTOR_ID " +
-                "LEFT JOIN (SELECT FILM_ID, COUNT(FILM_ID) AS likes_count FROM LIKES GROUP BY FILM_ID) " +
-                "AS likes_by_film ON likes_by_film.FILM_ID = FILMS.FILM_ID " +
-                "INNER JOIN mpa ON mpa.MPA_ID = FILMS.MPA_ID " +
+        String sqlFilmRow = "SELECT *, mpa.name AS mpa_name FROM films AS f " +
+                "LEFT JOIN film_directors AS fd on f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                LEFT_JOIN_LIKES_BY_FILM_ON_FILM_ID +
+                "INNER JOIN mpa ON mpa.mpa_id = f.mpa_id " +
                 "WHERE " + where +
                 " ORDER BY likes_by_film.likes_count DESC";
         log.info("Запрос на получение фильма по подстроке поиска = {}, среди = {}", query, by);
@@ -196,5 +192,12 @@ public class FilmDaoImpl implements FilmDao {
                 .genres(new ArrayList<>())
                 .directors(new ArrayList<>())
                 .build();
+    }
+
+    private static String insertLikesCountField() {
+        int index = SELECT_FILM_FIELDS_BY_DIRECTOR.indexOf("FROM");
+        String beginStr = SELECT_FILM_FIELDS_BY_DIRECTOR.substring(0,index);
+        String endStr = SELECT_FILM_FIELDS_BY_DIRECTOR.substring(index);
+        return beginStr + ", likes_by_film.likes_count " + endStr;
     }
 }

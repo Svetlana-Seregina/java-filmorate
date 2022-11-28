@@ -80,9 +80,9 @@ public class DirectorDaoImpl implements DirectorDao {
 
     @Override
     public void addDirectorsToFilm(Film film) {
-        String sqlSelectFilmDirectors = "SELECT directors.director_id, directors.name " +
-                "FROM film_directors " +
-                "INNER JOIN directors ON directors.director_id = film_directors.director_id " +
+        String sqlSelectFilmDirectors = "SELECT d.director_id, d.name " +
+                "FROM film_directors AS fd  " +
+                "INNER JOIN directors AS d ON d.director_id = fd.director_id " +
                 "WHERE film_id = ?";
         List<Director> directors = jdbcTemplate.query(sqlSelectFilmDirectors,
                 this::directorRowToDirector, film.getId());
@@ -92,8 +92,9 @@ public class DirectorDaoImpl implements DirectorDao {
     @Override
     public void loadFilmsDirectors(List<Film> films) {
         Map<Long, List<Director>> allFilmsDirectors = new HashMap<>();
-        SqlRowSet directorInfoRows = jdbcTemplate.queryForRowSet("SELECT * FROM film_directors INNER JOIN directors " +
-                "on film_directors.director_id=directors.director_id");
+        SqlRowSet directorInfoRows = jdbcTemplate.queryForRowSet("SELECT * FROM film_directors AS fd " +
+                "INNER JOIN directors AS d " +
+                "ON fd.director_id = d.director_id");
         while (directorInfoRows.next()) {
 
             long filmId = directorInfoRows.getLong("film_id");
@@ -130,14 +131,14 @@ public class DirectorDaoImpl implements DirectorDao {
         List<Object[]> args = filmDirectors.stream()
                 .map(director -> new Object[]{film.getId(), director.getId()})
                 .collect(Collectors.toList());
-        jdbcTemplate.batchUpdate("INSERT INTO film_directors (FILM_ID, DIRECTOR_ID) VALUES (?, ?)", args);
+        jdbcTemplate.batchUpdate("INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)", args);
         film.setDirectors(filmDirectors);
         return film;
     }
 
     @Override
     public void deleteFilmDirectors(Film film) {
-        String sqlQuery = "DELETE FROM FILM_DIRECTORS WHERE FILM_ID = ?";
+        String sqlQuery = "DELETE FROM film_directors WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, film.getId());
     }
 
