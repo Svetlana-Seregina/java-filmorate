@@ -1,15 +1,17 @@
 package ru.yandex.practicum.filmorate;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.dao.Impl.*;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
-
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,20 +24,23 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Slf4j
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FilmorateApplicationTests {
     private final UserDaoImpl userDaoImpl;
     private final FilmDaoImpl filmDaoImpl;
     private final GenreDaoImpl genreDaoImpl;
     private final MpaDaoImpl mpaDaoImpl;
     private final LikeDaoImpl likeDaoImpl;
-
     private final DirectorDaoImpl directorDaoImpl;
+    private final ReviewDaoImpl reviewDaoImpl;
+    private final ReviewLikeDaoImpl reviewLikeDaoImpl;
 
     @Test
     void contextLoads() {
     }
 
     @Test
+    @Order(1)
     public void testFindUserById() {
         User user = userDaoImpl.createUser(User.builder()
                 .name("Nick Name")
@@ -51,6 +56,7 @@ class FilmorateApplicationTests {
 
 
     @Test
+    @Order(2)
     public void testUpdateUser() {
         User user2 = userDaoImpl.createUser(User.builder()
                 .name("Nick Name5")
@@ -71,6 +77,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
+    @Order(3)
     public void testFindAllUsers() {
         userDaoImpl.createUser(User.builder()
                 .name("Nick Name2")
@@ -85,10 +92,11 @@ class FilmorateApplicationTests {
                 .birthday(LocalDate.of(2000, 11, 15))
                 .build());
         assertThat(userDaoImpl.findAllUsers().size())
-                .isEqualTo(2);
+                .isEqualTo(4);
     }
 
     @Test
+    @Order(4)
     public void testUpdateFilmById() {
         Film film = filmDaoImpl.createFilm(Film.builder()
                 .name("labore nulla")
@@ -116,6 +124,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
+    @Order(4)
     public void testGetFilmById() {
         Film film = filmDaoImpl.createFilm(Film.builder()
                 .name("labore nulla 4")
@@ -134,6 +143,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
+    @Order(5)
     public void testFilmAddLike() {
         userDaoImpl.createUser(User.builder()
                 .name("Nick Name4")
@@ -171,25 +181,24 @@ class FilmorateApplicationTests {
         likeDaoImpl.addLikeToFilm(1L, 1L);
         likeDaoImpl.addLikeToFilm(2L, 1L);
         likeDaoImpl.addLikeToFilm(2L, 2L);
-
-		/*assertThat(likeDaoImpl.findPopularFilms(1).size())
-				.isEqualTo(1);*/
-
     }
 
     @Test
+    @Order(6)
     public void testGetAllGenres() {
         assertThat(genreDaoImpl.findAllGenre().size())
                 .isEqualTo(6);
     }
 
     @Test
+    @Order(7)
     public void testGetAllMpa() {
         assertThat(mpaDaoImpl.findAllMpa().size())
                 .isEqualTo(5);
     }
 
     @Test
+    @Order(8)
     public void testCreateUpdateAndGetDirector() {
         Director director = Director.builder()
                 .id(1L)
@@ -203,6 +212,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
+    @Order(9)
     public void testDeleteAndGetAllDirectors() {
         Director director = Director.builder()
                 .id(1L)
@@ -215,6 +225,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
+    @Order(10)
     public void testCommonFilms() {
         assertEquals(filmDaoImpl.getCommonFilms(3l, 4l).size(), 0);
         likeDaoImpl.addLikeToFilm(3l, 3l);
@@ -224,5 +235,49 @@ class FilmorateApplicationTests {
         System.out.println(filmDaoImpl.getCommonFilms(3l, 4l));
         assertEquals(filmDaoImpl.getCommonFilms(3l, 4l).size(), 2);
         assertEquals(filmDaoImpl.getCommonFilms(3l, 4l).get(0).getId(), 1);
+    }
+
+    @Test
+    @Order(11)
+    public void testCreateUpdateDeleteReview() {
+        Review review = Review.builder()
+                              .filmId(3L)
+                              .userId(3L)
+                              .isPositive(true)
+                              .content("good review for good film")
+                              .build();
+        reviewDaoImpl.createReview(review);
+        assertThat(reviewDaoImpl.getReviewById(review.getReviewId()).equals(review));
+
+        review.setContent("new description");
+        reviewDaoImpl.updateReview(review);
+        assertThat(reviewDaoImpl.getReviewById(review.getReviewId()).equals(review));
+
+        reviewDaoImpl.deleteReview(review.getReviewId());
+        assertThrows(EntityNotFoundException.class,() -> reviewDaoImpl.getReviewById(review.getReviewId()));
+    }
+
+    @Test
+    @Order(12)
+    public void testAddRemoveLikeAndDislikeToReview() {
+        userDaoImpl.findUserById(2L);
+        Review review = Review.builder()
+                              .filmId(2L)
+                              .userId(2L)
+                              .isPositive(true)
+                              .content("good review for good film")
+                              .build();
+        reviewDaoImpl.createReview(review);
+
+        reviewLikeDaoImpl.addLikeToReview(review.getReviewId(), 3L);
+        reviewLikeDaoImpl.addLikeToReview(review.getReviewId(), 2L);
+
+        assertEquals(reviewDaoImpl.getReviewById(review.getReviewId()).getUseful(),2);
+
+        reviewLikeDaoImpl.addDislikeToReview(review.getReviewId(), 1L);
+        assertEquals(reviewDaoImpl.getReviewById(review.getReviewId()).getUseful(),1);
+
+        reviewLikeDaoImpl.removeLikeDislikeFromReview(review.getReviewId(),3L);
+        assertEquals(reviewDaoImpl.getReviewById(review.getReviewId()).getUseful(), 0);
     }
 }

@@ -106,6 +106,4 @@ public class GenreDaoImpl implements GenreDao {
                 .name(resultSet.getString("name"))
                 .build();
     }
-
-
 }
