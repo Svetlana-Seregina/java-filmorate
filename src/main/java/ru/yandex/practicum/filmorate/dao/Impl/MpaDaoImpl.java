@@ -1,10 +1,9 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -13,20 +12,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Component
+@Repository
 @RequiredArgsConstructor
-@Slf4j
 public class MpaDaoImpl implements MpaDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Mpa findMpaById(Long id) {
         try {
-            String sqlMpa = "SELECT * FROM MPA WHERE MPA_ID = ?";
+            String sqlMpa = "SELECT * FROM mpa WHERE mpa_id = ?";
             return jdbcTemplate.queryForObject(sqlMpa, this::mpaRowToMpa, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Запрашиваемый mpa_id меньше 0 или больше 5 = %d ", id));
+            throw new EntityNotFoundException(String.format("mpa_id не может быть меньше 0 или больше 5. " +
+                    "Переданное значение = %d", id));
         }
     }
 

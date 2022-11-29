@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,27 +9,21 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Date;
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
 
 @Repository
-@Slf4j
+@RequiredArgsConstructor
 public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
-
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public UserDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public User createUser(User user) {
-        String sqlQuery = "insert into USERS(NAME, EMAIL, LOGIN, BIRTHDAY) " +
-                "values (?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO users(name, email, login, birthday) VALUES (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"user_id"});
@@ -48,7 +41,7 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
 
     @Override
     public User updateUser(User user) {
-        String sqlQuery = "update USERS set NAME = ?, EMAIL = ?, LOGIN = ?, BIRTHDAY = ? where USER_ID = ?";
+        String sqlQuery = "UPDATE users SET name = ?, email = ?, login = ?, birthday = ? WHERE user_id = ?";
         int updatedRows = jdbcTemplate.update(sqlQuery
                 , user.getName()
                 , user.getEmail()
@@ -56,7 +49,7 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
                 , user.getBirthday()
                 , user.getId());
         if (updatedRows == 0) {
-            throw new EntityNotFoundException("Пользователь не найден, user id = " + user.getId());
+            throw new EntityNotFoundException(String.format("Пользователь с id=%d не найден", user.getId()));
         }
         return user;
     }
@@ -64,27 +57,32 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
     @Override
     public User findUserById(Long userId) {
         try {
-            String sqlUserRow = "select * from USERS where USER_ID = ?";
+            String sqlUserRow = "SELECT * FROM users WHERE user_id = ?";
             return jdbcTemplate.queryForObject(sqlUserRow, UserDaoImpl::mapRowToUser, userId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Пользователь с user_id=%d не найден", userId));
+            throw new EntityNotFoundException(String.format("Пользователь с id=%d не найден", userId));
         }
     }
 
     @Override
     public Collection<User> findAllUsers() {
-        String sqlQuery = "select USER_ID, NAME, EMAIL, LOGIN, BIRTHDAY from USERS";
+        String sqlQuery = "SELECT user_id, name, email, login, birthday FROM users";
         return jdbcTemplate.query(sqlQuery, UserDaoImpl::mapRowToUser);
+    }
+
+    @Override
+    public boolean deleteUser(Long userId) {
+        String sqlQuery = "DELETE FROM users WHERE user_id = ?";
+        return jdbcTemplate.update(sqlQuery, userId) > 0;
     }
 
     public static User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getLong("user_id"))
-                .name(resultSet.getString("NAME"))
-                .email(resultSet.getString("EMAIL"))
-                .login(resultSet.getString("LOGIN"))
-                .birthday(resultSet.getDate("BIRTHDAY").toLocalDate())
+                .name(resultSet.getString("name"))
+                .email(resultSet.getString("email"))
+                .login(resultSet.getString("login"))
+                .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
     }
-
 }

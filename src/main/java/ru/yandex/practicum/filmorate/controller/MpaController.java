@@ -18,13 +18,13 @@ public class MpaController {
 
     @GetMapping("/{id}")
     public Mpa findMpaById(@PathVariable Long id) {
-        log.info("Получен запрос на получение mpa_id = {}", id);
+        log.info("Обрабатываем запрос на получение рейтинга MPA с id = " + id);
         return mpaService.findMpaById(id);
     }
 
     @GetMapping
     public List<Mpa> findAllMpa() {
+        log.info("Обрабатываем запрос на получение списка всех рейтингов MPA");
         return mpaService.findAllMpa();
     }
-
 }
