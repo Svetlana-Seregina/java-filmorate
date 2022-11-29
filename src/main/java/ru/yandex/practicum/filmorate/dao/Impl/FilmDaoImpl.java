@@ -1,23 +1,29 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.dao.FilmDao;
 
-import java.sql.*;
 import java.sql.Date;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 @Slf4j
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
@@ -29,10 +35,6 @@ public class FilmDaoImpl implements FilmDao {
             "AS likes_count " +
             "FROM likes GROUP BY film_id) AS likes_by_film " +
             "ON likes_by_film.film_id = f.film_id ";
-    @Autowired
-    public FilmDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Film getFilmById(Long filmId) {
@@ -42,7 +44,7 @@ public class FilmDaoImpl implements FilmDao {
         try {
             film = jdbcTemplate.queryForObject(sqlFilmRow, FilmDaoImpl::mapRowToFilm, filmId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Фильм с film_id=%d не найден", filmId));
+            throw new EntityNotFoundException(String.format("Фильм с id=%d не найден", filmId));
         }
         return film;
     }
@@ -95,7 +97,7 @@ public class FilmDaoImpl implements FilmDao {
                 , film.getId());
 
         if (updatedRows == 0) {
-            throw new EntityNotFoundException("Фильм не найден, film id = " + film.getId());
+            throw new EntityNotFoundException(String.format("Фильм с id=%d не найден", film.getId()));
         }
     }
 
@@ -123,12 +125,13 @@ public class FilmDaoImpl implements FilmDao {
                     "WHERE director_id = ? " +
                     "ORDER BY likes_by_film.likes_count DESC";
         } else {
-            log.debug("Такая сортировка не поддерживается");
+            log.warn("Такой тип сортировки не поддерживается. Переданное значение: {}", sortBy);
             return new ArrayList<>();
         }
         List<Film> sortedFilms = jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm, directorId);
         if (sortedFilms.isEmpty()) {
-            throw new EntityNotFoundException("У режиссера с id = " + directorId + " нет фильмов");
+            throw new EntityNotFoundException(String.format("У режиссера с id=%d нет фильмов", directorId));
+
         }
         return sortedFilms;
     }
@@ -170,10 +173,7 @@ public class FilmDaoImpl implements FilmDao {
                 "INNER JOIN mpa ON mpa.mpa_id = f.mpa_id " +
                 "WHERE " + where +
                 " ORDER BY likes_by_film.likes_count DESC";
-        log.info("Запрос на получение фильма по подстроке поиска = {}, среди = {}", query, by);
-        List<Film> films = jdbcTemplate.query(sqlFilmRow, FilmDaoImpl::mapRowToFilm);
-        log.info("Получаем по подстроке {}", films);
-        return films;
+        return jdbcTemplate.query(sqlFilmRow, FilmDaoImpl::mapRowToFilm);
     }
 
 

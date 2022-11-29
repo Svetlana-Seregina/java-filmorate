@@ -1,19 +1,17 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.LikeDao;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collections;
 import java.util.List;
 
+@Repository
 @RequiredArgsConstructor
-@Component
-@Slf4j
 public class LikeDaoImpl implements LikeDao {
     private final JdbcTemplate jdbcTemplate;
 
@@ -49,8 +47,7 @@ public class LikeDaoImpl implements LikeDao {
                         (year != null ? " WHERE (EXTRACT(YEAR FROM release_date)) = " + year : "") +
                         " ORDER BY likes_by_film.likes_count DESC " +
                         " LIMIT " + count;
-        List<Film> listOfFilms = jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
-        return listOfFilms;
+        return jdbcTemplate.query(sqlQuery, FilmDaoImpl::mapRowToFilm);
     }
 
 
@@ -76,5 +73,4 @@ public class LikeDaoImpl implements LikeDao {
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> rs.getLong("film_id"), secondUserId, firstUserId);
     }
-
 }

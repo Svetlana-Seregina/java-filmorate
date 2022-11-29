@@ -26,7 +26,7 @@ public class ErrorHandler {
     @ResponseBody
     public ResponseEntity<String> handlerConstraintViolationException(ConstraintViolationException ex
             , HttpServletRequest request) {
-        log.info("Ошибка валидации запроса: " + ex.getMessage() +
+        log.warn("Ошибка валидации запроса: " + ex.getMessage() +
                 "\nПуть запроса: "+ request.getServletPath());
         return new ResponseEntity<>(ex.getMessage() +"\nПуть запроса: "+ request.getServletPath(), HttpStatus.BAD_REQUEST);
     }
@@ -36,7 +36,7 @@ public class ErrorHandler {
     @ResponseBody
     public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e
             , HttpServletRequest request) {
-        log.info("Ошибка валидации полей объекта: " + e.getFieldError().getDefaultMessage()
+        log.warn("Ошибка валидации полей объекта: " + e.getFieldError().getDefaultMessage()
                 +"\nПуть запроса: " + request.getServletPath());
         return new ResponseEntity<>(e.getFieldError().getDefaultMessage()
                 + "\nПуть запроса: " + request.getServletPath(), HttpStatus.BAD_REQUEST);
@@ -45,7 +45,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e, HttpServletRequest request) {
-        log.info("Запрашиваемый объект не найден: " + e.getMessage()
+        log.warn("Запрашиваемый объект не найден: " + e.getMessage()
                 + "\nПуть запроса: " +  request.getServletPath());
         return new ErrorResponse(e.getMessage() + ". Путь запроса: " + request.getServletPath());
     }
@@ -53,7 +53,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e, HttpServletRequest request) {
-        log.info("Произошла непредвиденная ошибка: " + e.getMessage()
+        log.warn("Произошла непредвиденная ошибка: " + e.getMessage()
                 + "\nПуть запроса: " + request.getServletPath());
         return new ErrorResponse("Произошла непредвиденная ошибка по пути запроса: " + request.getServletPath());
     }

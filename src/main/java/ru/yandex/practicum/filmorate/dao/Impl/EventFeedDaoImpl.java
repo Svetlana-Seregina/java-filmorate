@@ -1,9 +1,8 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.EventFeedDao;
 import ru.yandex.practicum.filmorate.model.Event;
 
@@ -13,9 +12,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
 @RequiredArgsConstructor
-@Component
-@Slf4j
 public class EventFeedDaoImpl implements EventFeedDao {
     private final JdbcTemplate jdbcTemplate;
 

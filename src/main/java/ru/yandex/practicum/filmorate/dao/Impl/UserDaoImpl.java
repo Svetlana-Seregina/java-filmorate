@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.Impl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -10,21 +9,17 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Date;
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
 
 @Repository
-@Slf4j
+@RequiredArgsConstructor
 public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public UserDaoImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public User createUser(User user) {
@@ -54,7 +49,7 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
                 , user.getBirthday()
                 , user.getId());
         if (updatedRows == 0) {
-            throw new EntityNotFoundException("Пользователь не найден, user id = " + user.getId());
+            throw new EntityNotFoundException(String.format("Пользователь с id=%d не найден", user.getId()));
         }
         return user;
     }
@@ -65,7 +60,7 @@ public class UserDaoImpl implements ru.yandex.practicum.filmorate.dao.UserDao {
             String sqlUserRow = "SELECT * FROM users WHERE user_id = ?";
             return jdbcTemplate.queryForObject(sqlUserRow, UserDaoImpl::mapRowToUser, userId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format("Пользователь с user_id=%d не найден", userId));
+            throw new EntityNotFoundException(String.format("Пользователь с id=%d не найден", userId));
         }
     }
 

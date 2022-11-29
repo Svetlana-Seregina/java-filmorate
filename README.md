@@ -65,10 +65,6 @@ Template repository for Filmorate project.
     F4-3 - Get Director By Id
     F4-4 - Get All Directors
     F4-5 - Delete Director
-    F4-6 - Add Directors To Film
-    F4-7 - Get Film Directors
-    F4-8 - Update Film Directors
-    F4-9 - Delete Film Directors
 
 **F5 - Users**
 
@@ -82,10 +78,6 @@ Template repository for Filmorate project.
 
     F6-1 - Get Genre By Id
     F6-2 - Find All Genres
-    F6-3 - Add Genres To Film
-    F6-4 - Get Film Genres
-    F6-5 - Update Film Genres
-    F6-6 - Delete Film Genres
 
 **F7 - Friends**
 
